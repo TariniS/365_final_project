@@ -1,0 +1,49 @@
+User stories/User requirements:
+
+- As a user, I want to be able to create a profile on the platform and add my personal information, such as my name, email.
+- As a user, I want to be able to upload a new recipe with the recipe name, ingredients, instructions.
+- As a user, I want to be able to search for recipes based on specific ingredients or cuisine types.
+- As a user, I want to be able to view a recipe and see its rating and comments from other users.
+- As a user, I want to be able to rate a recipe and leave comments.
+
+Endpoints:
+
+POST /users: 
+  - This endpoint allows a user to create a new profile on the platform using an emailId and password.
+  - Parameters: 
+    - name: string (required)
+    - email: string (required)
+    - password: string (required)
+   
+POST /recipes: 
+  - This endpoint allows a user to upload a new recipe to the platform. A user can have multiple different recipes for the same dish (there are different ways to make a dish). 
+  - Parameters:
+    - name: string (required)
+    - ingredients: list of strings (required)
+    - instructions: string (required)
+   
+GET /recipes: 
+  - This endpoint allows a user to search for recipes based on specific ingredients and/or cuisine types.
+  - Parameters:
+    - ingredients: list of strings (optional)
+    - cuisine_type: string (optional)
+    
+GET /recipes/{id}: 
+  - This endpoint allows a user to view a recipe and see its rating and comments from other users for that specific recipe.
+  - Parameters:
+    - id: string (required)
+  
+POST /recipes/{id}/rating: 
+  - This endpoint allows a user to rate a recipe and leave comments.
+  - Parameters:
+    - id: string (required)
+    - rating: float (required)
+    - comment: string (optional)
+
+Detailed descriptions of edge cases and transaction flows:
+
+- If the user tries to create a profile with an email that already exists, the system should return an error message indicating that the email is already in use.
+- If a user tries to upload a recipe with incomplete information, such as missing ingredients or instructions, the system should return an error message indicating that the recipe is incomplete.
+- If a user tries to search for recipes with an invalid search query, such as a non-existent ingredient, the system should return an error message indicating that the search query is invalid.
+- If a user tries to rate a recipe without providing a rating value, the system should return an error message indicating that the rating value is required.
+- If a user tries to rate a recipe multiple times, the system should only update the rating for that recipe with the most recent rating provided by the user.
