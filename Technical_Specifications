@@ -6,6 +6,7 @@ User stories/User requirements:
 - As a user, I want to be able to view a recipe and see its rating and comments from other users.
 - As a user, I want to be able to rate a recipe and leave comments.
 
+
 Endpoints:
 
 POST /users: 
@@ -39,6 +40,7 @@ POST /recipes/{id}/rating:
     - id: string (required)
     - rating: float (required)
     - comment: string (optional)
+
 
 Detailed descriptions of edge cases and transaction flows:
 
