@@ -17,7 +17,7 @@ POST /users:
     - password: string (required)
    
 POST /recipes: 
-  - This endpoint allows a user to upload a new recipe to the platform. A user can have multiple different recipes for the same dish (there are different ways to make a dish). 
+  - This endpoint allows a user to upload a new recipe to the platform. A user can have multiple different recipe versions for the same dish. 
   - Parameters:
     - name: string (required)
     - ingredients: list of strings (required)
