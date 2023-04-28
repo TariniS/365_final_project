@@ -5,6 +5,8 @@ User stories/User requirements:
 - As a user, I want to be able to search for recipes based on specific ingredients or cuisine types.
 - As a user, I want to be able to view a recipe and see its rating and comments from other users.
 - As a user, I want to be able to rate a recipe and leave comments.
+- As a user, I want to be able to view or post ethnic recipes that represent the traditional preparation methods or ingredients of those dishes.
+- As a user, I want to be able to edit a recipe. 
 
 
 Endpoints:
@@ -26,13 +28,20 @@ POST /recipes:
 GET /recipes: 
   - This endpoint allows a user to search for recipes based on specific ingredients and/or cuisine types.
   - Parameters:
+    - id: string (required)
     - ingredients: list of strings (optional)
     - cuisine_type: string (optional)
+    - sort: sort.ratings (optional)
+    - filter: filter.vegan, filter.vegetarian, filter.child_safe, filter.nut_free, filter_dairyfree (optional)
     
 GET /recipes/{id}: 
   - This endpoint allows a user to view a recipe and see its rating and comments from other users for that specific recipe.
   - Parameters:
     - id: string (required)
+    - difficulty: int (required)
+    - prep_time: int (required)
+    - serving_size: int (required)
+    - instructions: string (required)
   
 POST /recipes/{id}/rating: 
   - This endpoint allows a user to rate a recipe and leave comments.
@@ -49,3 +58,4 @@ Detailed descriptions of edge cases and transaction flows:
 - If a user tries to search for recipes with an invalid search query, such as a non-existent ingredient, the system should return an error message indicating that the search query is invalid.
 - If a user tries to rate a recipe without providing a rating value, the system should return an error message indicating that the rating value is required.
 - If a user tries to rate a recipe multiple times, the system should only update the rating for that recipe with the most recent rating provided by the user.
+- If a user tries to create a recipe but there is already an exisiting recipe with the same name in the database. 
