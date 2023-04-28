@@ -5,7 +5,8 @@ User stories/User requirements:
 - As a user, I want to be able to search for recipes based on specific ingredients or cuisine types.
 - As a user, I want to be able to view a recipe and see its rating and comments from other users.
 - As a user, I want to be able to rate a recipe and leave comments.
-- As a user, I want to be able to view or post ethnic recipes that represent the traditional preparation methods or ingredients of those dishes.
+- As a user, I want to be able to filter a recipe by specific tags based on nutritional needs (gluten free, dairy free, vegan, etc)
+- As a user, I want to be able to sort for recipes based on the ratings their recieved
 - As a user, I want to be able to edit a recipe. 
 
 
