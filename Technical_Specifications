@@ -27,13 +27,18 @@ POST /recipes:
     - instructions: string (required)
    
 GET /recipes: 
-  - This endpoint allows a user to search for recipes based on specific ingredients and/or cuisine types.
+  - This endpoint allows a user to search for recipes based on cuisine, and sort/filter based on dietary restrictions.
   - Parameters:
     - id: string (required)
-    - ingredients: list of strings (optional)
     - cuisine_type: string (optional)
     - sort: sort.ratings (optional)
     - filter: filter.vegan, filter.vegetarian, filter.child_safe, filter.nut_free, filter_dairyfree (optional)
+
+GET /recipes/{ingredient_list}: 
+  - This endpoint allows a user to search for recipes based on ingredients they have available on hand and returns 
+    the recipes in order of highest ingredient match
+  - Parameters:
+    - ingredients: list of strings (required)
     
 GET /recipes/{id}: 
   - This endpoint allows a user to view a recipe and see its rating and comments from other users for that specific recipe.
