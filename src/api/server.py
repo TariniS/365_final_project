@@ -28,12 +28,12 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="Movie API",
+    title="Recipe API",
     description=description,
     version="0.0.1",
     contact={
-        "name": "Lucas Pierce",
-        "email": "lupierce@calpoly.edu",
+        "name": "Sameera Balijepalli and Tarini Srikanth",
+        "email": "sbalijep@calpoly.edu",
     },
     openapi_tags=tags_metadata,
 )
@@ -45,4 +45,4 @@ app.include_router(conversations.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Movie API. See /docs for more information."}
+    return {"message": "Welcome to the Recipe API. See /docs for more information."}
