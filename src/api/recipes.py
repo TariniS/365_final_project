@@ -53,7 +53,7 @@ def get_recipes_by_ingredients(ingredients_list: list):
 
 
 class recipe_sort_options(str, Enum):
-    tags = "cuisine_type"
+    tags = "tags"
     ratings = "rating"
 
 # Add get parameters
@@ -61,7 +61,7 @@ class recipe_sort_options(str, Enum):
 def list_recipes(
     tags: str = "",
     rating: int = 0 ,
-    sort: recipe_sort_options = recipe_sort_options.cuisine_type):
+    sort: recipe_sort_options = recipe_sort_options.rating):
 
     """
       - This endpoint allows a user to search for recipes based on cuisine, and sort/filter based on rating.
@@ -69,12 +69,22 @@ def list_recipes(
     - id: string (required)
     - tags: string (optional)
     - sort: sort.ratings (optional)
-    - filter: filter.vegan, filter.vegetarian, filter.child_safe, filter.nut_free, filter_dairyfree (optional)
+ - Returns a list of recipes  Top 5 based on tags, sorted by rating?
+ - Returns List of Recipes: Top 5
+    -recipe_name: String
+    - user_id : String
+    - rating/comments: List
+    - total_time: int
+    - servings : int
+    - spice_level: int
+    - cooking_level: int
+    - recipe_description: String
+    - ingredients: List
+    - instructions: List
     """
 
     return None
 
-# not sure how to define the above endpoint because we dont have cusine type anymore
 
 
 
