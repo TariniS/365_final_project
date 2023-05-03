@@ -13,3 +13,9 @@ def database_connection_url():
     DB_PORT: str = os.environ.get("POSTGRES_PORT")
     DB_NAME: str = os.environ.get("POSTGRES_DB")
     return f"postgresql://{DB_USER}:{DB_PASSWD}@{DB_SERVER}:{DB_PORT}/{DB_NAME}"
+
+
+engine = sqlalchemy.create_engine(database_connection_url())
+conn = engine.connect()
+metadata_obj = sqlalchemy.MetaData()
+recipes = sqlalchemy.Table("recipe", metadata_obj, autoload_with=engine)
