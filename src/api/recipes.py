@@ -31,8 +31,7 @@ def get_recipe(id: str):
 
 @router.get("/recipes/", tags=["recipes"])
 def get_recipes_by_ingredients(ingredient_list: str):
-    json = None
-    ingredient_list = ingredient_list.split(",")
+
     """
     - This endpoint allows a user to search for recipes based on ingredients they have available on hand and returns
     the recipes in order of highest ingredient match
@@ -46,6 +45,9 @@ def get_recipes_by_ingredients(ingredient_list: str):
          {recipe_name : name, recipe_id : id}]
     """
 
+    json = None
+    ingredient_list = ingredient_list.split(",")
+
     query = """ SELECT ingredients.recipe_id, recipe.recipe_name, COUNT(*) AS frequency
                 from ingredients
                 JOIN recipe ON ingredients.recipe_id = recipe.recipe_id
@@ -58,7 +60,6 @@ def get_recipes_by_ingredients(ingredient_list: str):
         json = {
             "recipe_name": row[1],
             "recipe_id": row[0]
-
         }
 
     return json
