@@ -3,6 +3,7 @@ from sqlalchemy import func
 from fastapi import APIRouter, HTTPException
 from enum import Enum
 from src import database as db
+from typing import List
 
 router = APIRouter()
 @router.get("/recipes/{id}", tags=["recipes"])
@@ -28,9 +29,10 @@ def get_recipe(id: str):
 
 
 
-# this one is probably the hardest endpoint - need to use core ingredient
 @router.get("/recipes/", tags=["recipes"])
-def get_recipes_by_ingredients(ingredients_list: list):
+def get_recipes_by_ingredients(ingredient_list: str):
+    json = None
+    ingredient_list = ingredient_list.split(",")
     """
     - This endpoint allows a user to search for recipes based on ingredients they have available on hand and returns
     the recipes in order of highest ingredient match
@@ -42,20 +44,24 @@ def get_recipes_by_ingredients(ingredients_list: list):
          {recipe_name : name, recipe_id : id},
          {recipe_name : name, recipe_id : id},
          {recipe_name : name, recipe_id : id}]
-
-    - Sample SQL query that seems to be working
-
-    query = "
-            SELECT ingredients.recipe_id, recipe.recipe_name,  COUNT(*) AS frequency
-            from ingredients
-            JOIN recipe ON ingredients.recipe_id = recipe.recipe_id
-            WHERE ingredients.core_ingredient IN ('cheese', 'bread')
-            GROUP BY ingredients.recipe_id, recipe.recipe_name
-            ORDER BY frequency DESC
-        "
     """
 
-    return ingredients_list
+    query = """ SELECT ingredients.recipe_id, recipe.recipe_name, COUNT(*) AS frequency
+                from ingredients
+                JOIN recipe ON ingredients.recipe_id = recipe.recipe_id
+                WHERE ingredients.core_ingredient = ANY(:ingredient_list)
+                GROUP BY ingredients.recipe_id, recipe.recipe_name 
+                ORDER BY frequency DESC"""
+
+    result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list})
+    for row in result:
+        json = {
+            "recipe_name": row[1],
+            "recipe_id": row[0]
+
+        }
+
+    return json
 
 
 class recipe_sort_options(str, Enum):
