@@ -24,10 +24,11 @@ def get_recipe(id: str):
             ratings: [{ rating_id : id, user_id : id, rating: int, comment: text },
                       {rating_id : id, user_id : id, rating: int, comment: text }]]
     """
-
     return id
 
 
+
+# this one is probably the hardest endpoint - need to use core ingredient
 @router.get("/recipes/", tags=["recipes"])
 def get_recipes_by_ingredients(ingredients_list: list):
     """
@@ -35,24 +36,18 @@ def get_recipes_by_ingredients(ingredients_list: list):
     the recipes in order of highest ingredient match
   - Parameters:
     - ingredients: list of strings (required)
-  - Returns List of Recipes: Top 5
-    -recipe_name: String
-    - user_id : String
-    - rating/comments: List
-    - total_time: int
-    - servings : int
-    - spice_level: int
-    - cooking_level: int
-    - recipe_description: String
-    - ingredients: List
-    - instructions: List
+  - Returns List of Recipes: Top 5 based on highest ingredient match
+
+        [{recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id}]
     """
 
     return ingredients_list
 
 
 class recipe_sort_options(str, Enum):
-    tags = "tags"
     rating = "rating"
     spiceLevel = "spice_level"
     cookingLevel = "cooking_level"
@@ -62,33 +57,25 @@ class recipe_sort_options(str, Enum):
 # Add get parameters
 @router.get("/recipes/", tags=["movies"])
 def list_recipes(
-    tags: str = "",
-    rating: int = 0 ,
-    spiceLevel : int = 0,
-    cookingLevel : int = 0,
-    servings : int = 1,
+    tag: str = "",
     sort: recipe_sort_options = recipe_sort_options.rating):
 
     """
-      - currently only supports filtering by one tag?
-      - This endpoint allows a user to search for recipes based on tags, and sort/filter based on rating.
+    currently only supports filtering by one tag?
+    This endpoint allows a user to search for recipes based on tags, and sort/filter based on rating.
   - Parameters:
     - id: string (required)
-    - tags: string (optional)
+    - tag: string (optional)
     - sort: sort.ratings (optional)
- - Returns a list of recipes  Top 5 based on tags, sorted by rating?
- - Returns List of Recipes: Top 5
-    -recipe_name: String
-    - user_id : String
-    - rating/comments: List
-    - total_time: int
-    - servings : int
-    - spice_level: int
-    - cooking_level: int
-    - recipe_description: String
-    - ingredients: List
-    - instructions: List
-    """
+
+        [{recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id},
+         {recipe_name : name, recipe_id : id}]
+
+ - Returns a list of recipes  Top 5
+"""
 
     return None
 
