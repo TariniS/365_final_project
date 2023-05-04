@@ -13,17 +13,16 @@ def get_recipe(id: str):
   - Parameters:
     - id: string (required)
   - Returns:
-    - recipe_name: String
-    - user_id : String
-    - rating/comments: List
-    - total_time: int
-    - servings : int
-    - spice_level: int
-    - cooking_level: int
-    - recipe_description: String
-    - ingredients: List
-    - instructions: List
-    -
+     [{recipe_name: name, user_id : id, total_time: int, servings: int, spice_level: int, cooking_level: int, recipe_description: String,
+            ingredients: [{ ingredient_id : id, ingredient_name : name, quantity: quantity, measurements: units},
+                         { ingredient_id : id, ingredient_name : name, quantity: quantity, measurements: units},
+                         { ingredient_id : id, ingredient_name : name, quantity: quantity, measurements: units},
+                         { ingredient_id : id, ingredient_name : name, quantity: quantity, measurements: units}],
+            instructions: [{ instruction_id : id, step_order : step, step_name : name},
+                           { instruction_id : id, step_order : step, step_name : name},
+                           { instruction_id : id, step_order : step, step_name : name}],
+            ratings: [{ rating_id : id, user_id : id, rating: int, comment: text },
+                      {rating_id : id, user_id : id, rating: int, comment: text }]]
     """
 
     return id
@@ -54,17 +53,25 @@ def get_recipes_by_ingredients(ingredients_list: list):
 
 class recipe_sort_options(str, Enum):
     tags = "tags"
-    ratings = "rating"
+    rating = "rating"
+    spiceLevel = "spice_level"
+    cookingLevel = "cooking_level"
+    servings = "servings"
+
 
 # Add get parameters
 @router.get("/recipes/", tags=["movies"])
 def list_recipes(
     tags: str = "",
     rating: int = 0 ,
+    spiceLevel : int = 0,
+    cookingLevel : int = 0,
+    servings : int = 1,
     sort: recipe_sort_options = recipe_sort_options.rating):
 
     """
-      - This endpoint allows a user to search for recipes based on cuisine, and sort/filter based on rating.
+      - currently only supports filtering by one tag?
+      - This endpoint allows a user to search for recipes based on tags, and sort/filter based on rating.
   - Parameters:
     - id: string (required)
     - tags: string (optional)
