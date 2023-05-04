@@ -46,11 +46,11 @@ def get_recipes_by_ingredients(ingredients_list: list):
     - Sample SQL query that seems to be working
 
     query = "
-            SELECT ingredients.recipe_id, COUNT(*) AS frequency
+            SELECT ingredients.recipe_id, recipe.recipe_name,  COUNT(*) AS frequency
             from ingredients
             JOIN recipe ON ingredients.recipe_id = recipe.recipe_id
             WHERE ingredients.core_ingredient IN ('cheese', 'bread')
-            GROUP BY ingredients.recipe_id
+            GROUP BY ingredients.recipe_id, recipe.recipe_name
             ORDER BY frequency DESC
         "
     """
