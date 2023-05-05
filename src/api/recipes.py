@@ -31,7 +31,7 @@ def get_recipe(id: str):
     return id
 
 
-@router.get("/recipes/", tags=["recipes"])
+@router.get("/findrecipes/", tags=["recipes"])
 def get_recipes_by_ingredients(ingredient_list: str):
     """
     - This endpoint allows a user to search for recipes based on ingredients they have available on hand and returns
