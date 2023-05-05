@@ -57,7 +57,7 @@ def get_recipe(id: str):
             "Steps": row.steps,
             "User Comments": row.comments
         })
-    if json is None:
+    if json == []:
         raise HTTPException(status_code=404, detail="recipe not found.")
     return json
 
