@@ -29,9 +29,9 @@ class RecipeJson(BaseModel):
     instructions: List[Instruction]
 
 
-@router.post("/recipes/{user_id}/recipe/", tags=["movies"])
+@router.post("/recipes/{user_id}/recipe/", tags=["recipes"])
 def add_recipe(user_id: int, recipe: RecipeJson):
-    existing_user_query = """ SELECT COUNT(*) 
+    existing_user_query = """ SELECT *
                               FROM users 
                               WHERE users.user_id = :user_id"""
     existing_user = db.conn.execute(sqlalchemy.text(existing_user_query), {'user_id': user_id})
