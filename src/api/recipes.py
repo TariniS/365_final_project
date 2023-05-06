@@ -1,4 +1,5 @@
 import sqlalchemy
+from pydantic import BaseModel
 from sqlalchemy import func
 from fastapi import APIRouter, HTTPException
 from enum import Enum
@@ -6,6 +7,8 @@ from src import database as db
 from typing import List
 
 router = APIRouter()
+
+
 @router.get("/recipes/{id}", tags=["recipes"])
 def get_recipe(id: str):
     """
@@ -88,13 +91,15 @@ def get_recipes_by_ingredients(ingredient_list: str):
                 ORDER BY frequency DESC"""
 
     result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list})
+    json_vals = []
     for row in result:
         json = {
             "recipe_name": row[1],
             "recipe_id": row[0]
         }
+        json_vals.append(json)
 
-    return json
+    return json_vals
 
 
 class recipe_sort_options(str, Enum):
@@ -179,7 +184,6 @@ def list_recipes(
             )
 
     return json
-
 
 
 
