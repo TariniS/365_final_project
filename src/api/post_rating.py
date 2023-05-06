@@ -62,3 +62,4 @@ def add_rating(user_id: int, recipe_id: int, rating: Rating):
                 )
 
     return new_rating_id
+# returns new id
