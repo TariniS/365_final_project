@@ -15,9 +15,14 @@ class Rating(BaseModel):
 
 @router.post("/recipes/{user_id}/{recipe_id}/rate/", tags=["recipes"])
 def add_rating(user_id: int, recipe_id: int, rating: Rating):
-    # add new rating
-    # make sure user_id and recipe_id are valid
-    # user_id valid
+    """
+    This endpoint adds a rating to a Recipe. The rating is represented
+    by a recipe rating, recipe comment, and the date when the rating was added.
+    It also takes in a user_id and recipe_id to ensure that the rating is added
+    by the specific user and to the desired recipe they would like to rate.
+
+    The endpoint returns the id of the recipe rating that was created.
+    """
     existing_user_query = """ SELECT *
                                   FROM users 
                                   WHERE users.user_id = :user_id"""
@@ -62,4 +67,3 @@ def add_rating(user_id: int, recipe_id: int, rating: Rating):
                 )
 
     return new_rating_id
-# returns new id

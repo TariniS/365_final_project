@@ -31,10 +31,19 @@ class RecipeJson(BaseModel):
 
 @router.post("/recipes/{user_id}/recipe/", tags=["recipes"])
 def add_recipe(user_id: int, recipe: RecipeJson):
+    """
+    This endpoint adds a recipe to Recipe. The recipe is represented
+    by a recipe name, total time, servings, spice level, cooking level
+    recipe description, ingredients, and instructions. It also takes in a user_id
+    which links the recipe to that specific user.
+
+    The endpoint returns the id of the resulting recipe that was created.
+    """
     existing_user_query = """ SELECT *
                               FROM users 
                               WHERE users.user_id = :user_id"""
-    existing_user = db.conn.execute(sqlalchemy.text(existing_user_query), {'user_id': user_id})
+    existing_user = db.conn.execute(sqlalchemy.text(existing_user_query),
+                                    {'user_id': user_id})
     last_recipe_id = """ SELECT recipe.recipe_id
                               FROM recipe
                               ORDER BY recipe_id DESC"""
@@ -44,17 +53,20 @@ def add_recipe(user_id: int, recipe: RecipeJson):
     last_instruction_id = """ SELECT instructions.instruction_id
                               FROM instructions
                               ORDER BY instruction_id DESC"""
-    new_recipe_id = int(db.conn.execute(sqlalchemy.text(last_recipe_id)).first()[0]) + 1
-    new_ingredient_id = int(db.conn.execute(sqlalchemy.text(last_ingredient_id)).first()[0]) + 1
-    new_instruction_id = int(db.conn.execute(sqlalchemy.text(last_instruction_id)).first()[0]) + 1
+    new_recipe_id = int(db.conn.execute(sqlalchemy.
+                                        text(last_recipe_id)).first()[0]) + 1
+    new_ingredient_id = int(db.conn.execute(sqlalchemy.
+                                            text(last_ingredient_id)).first()[0]) + 1
+    new_instruction_id = int(db.conn.execute(sqlalchemy.
+                                             text(last_instruction_id)).first()[0]) + 1
 
     # Error checking
     count = 0
     for row in existing_user:
         count += 1
     if count == 0:
-        raise HTTPException(status_code=404, detail="user_id not found. Please create a new user.")
-    # user_id valid
+        raise HTTPException(status_code=404, detail="user_id not found."
+                                                    " Please create a new user.")
     else:
         with db.engine.begin() as conn:
             conn.execute(

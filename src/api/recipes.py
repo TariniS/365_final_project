@@ -66,18 +66,15 @@ def get_recipe(id: str):
 
 @router.get("/findrecipes/", tags=["recipes"])
 def get_recipes_by_ingredients(ingredient_list: str):
-
     """
-    - This endpoint allows a user to search for recipes based on ingredients they have available on hand and returns
-    the recipes in order of highest ingredient match
-  - Parameters:
-    - ingredients: list of strings (required)
-  - Returns List of Recipes: Top 5 based on highest ingredient match
-
-        [{recipe_name : name, recipe_id : id},
-         {recipe_name : name, recipe_id : id},
-         {recipe_name : name, recipe_id : id},
-         {recipe_name : name, recipe_id : id}]
+    This endpoint allows a user ot search for recipes based on ingredients
+    they have available to them.
+    For each matched recipe, it returns:
+    * `Recipe Name`: The name of the recipe.
+    * `Recipe Id': The internal id of the recipe.
+    The 'ingredient_list' parameters are used to search for recipes that contain
+    desired ingredients. The order in which recipes are returned are based on
+    highest match.
     """
 
     json = None
