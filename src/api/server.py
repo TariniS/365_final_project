@@ -1,11 +1,15 @@
 from fastapi import FastAPI
-from src.api import recipes, pkg_util
+from src.api import recipes, users, pkg_util, post_recipes, post_rating
 description = """
 Add description about recipes API
 """
 tags_metadata = [
     {
         "name": "recipes",
+        "description": "Access information about recipes.",
+    },
+{
+        "name": "users",
         "description": "Access information about recipes.",
     }
 ]
@@ -21,6 +25,9 @@ app = FastAPI(
     openapi_tags=tags_metadata,
 )
 app.include_router(recipes.router)
+app.include_router(users.router)
+app.include_router(post_recipes.router)
+app.include_router(post_rating.router)
 app.include_router(pkg_util.router)
 
 
