@@ -16,38 +16,34 @@ POST /users:
   - This endpoint allows a user to create a new profile on the platform using an emailId and password.
   - Parameters: 
     - name: string (required)
-    - email: string (required)
-    - password: string (required)
    
 POST /recipes: 
   - This endpoint allows a user to upload a new recipe to the platform. A user can have multiple different recipe versions for the same dish. 
   - Parameters:
-    - name: string (required)
-    - ingredients: list of strings (required)
-    - instructions: string (required)
+    - user_id: int (required)
+    - recipeJSON: Class_BaseModel (required)
+   - RecipeJSON consists of recipe_name, total_time, servings, spice_level, cooking_level, recipe_description, ingredients, and instructions
+        where ingredients and instructions are another class consisting of attributes specific to them.
    
 GET /recipes: 
-  - This endpoint allows a user to search for recipes based on cuisine, and sort/filter based on dietary restrictions.
+  - This endpoint returns a list of recipes. A user can further search for a recipe by specific tags (quick, vegan, dairy-free, etc), sort by
+    total time, spice level, cooking level, and servings. It also has a limit and offset query used for pagination.
   - Parameters:
-    - id: string (required)
-    - cuisine_type: string (optional)
-    - sort: sort.ratings (optional)
-    - filter: filter.vegan, filter.vegetarian, filter.child_safe, filter.nut_free, filter_dairyfree (optional)
+    - tags: string (optional)
+    - offset: 0
+    - limit: 50
+    - sort: sort.total_time, sort.spice_level, sort.cooking_level, sort.servings (optional)
 
-GET /recipes/{ingredient_list}: 
-  - This endpoint allows a user to search for recipes based on ingredients they have available on hand and returns 
+GET /findrecipes/{ingredient_list}:
+  - This endpoint allows a user to find for recipes based on ingredients they have available on hand and returns
     the recipes in order of highest ingredient match
   - Parameters:
     - ingredients: list of strings (required)
     
 GET /recipes/{id}: 
-  - This endpoint allows a user to view a recipe and see its rating and comments from other users for that specific recipe.
+  - This endpoint allows a user to view a recipe based on an id and see the information pertaining to it (see docstring)
   - Parameters:
-    - id: string (required)
-    - difficulty: int (required)
-    - prep_time: int (required)
-    - serving_size: int (required)
-    - instructions: string (required)
+    - recipe_id: int (required)
   
 POST /recipes/{id}/rating: 
   - This endpoint allows a user to rate a recipe and leave comments.
