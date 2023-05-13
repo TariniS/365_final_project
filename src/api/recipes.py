@@ -25,26 +25,30 @@ def get_recipe(id: str):
     * 'User Comments': list of comments left by other users for recipe
     """
     stmt = f"""WITH steps AS (
-                  select ingredients.recipe_id, 
-                  ARRAY_AGG(ingredients.ingredient_name) AS steps
-                  from ingredients
-                  GROUP BY ingredients.recipe_id),
-                comments AS (
-                  select recipe_rating.recipe_id, 
-                  ARRAY_AGG(recipe_rating.recipe_comment) AS comments
-                  from recipe_rating
-                  GROUP BY recipe_rating.recipe_id),
-                ingre AS (
-                  select ingredients.recipe_id, 
-                  ARRAY_AGG(ingredients.ingredient_name) AS ingredients
-                  from ingredients
-                  GROUP BY ingredients.recipe_id)
-                SELECT *
-                FROM recipe, steps, comments, ingre
-                WHERE recipe.recipe_id = {id} AND 
-                        recipe.recipe_id = steps.recipe_id AND 
-                        recipe.recipe_id = comments.recipe_id and
-                        recipe.recipe_id = ingre.recipe_id """
+  SELECT instructions.recipe_id, 
+         ARRAY_AGG(instructions.step_name) AS steps
+  FROM instructions
+  GROUP BY instructions.recipe_id
+),
+comments AS (
+  SELECT recipe_rating.recipe_id, 
+         ARRAY_AGG(recipe_rating.recipe_comment) AS comments
+  FROM recipe_rating
+  GROUP BY recipe_rating.recipe_id
+),
+ingre AS (
+  SELECT ingredients.recipe_id, 
+         ARRAY_AGG(ingredients.ingredient_name) AS ingredients
+  FROM ingredients
+  GROUP BY ingredients.recipe_id
+)
+SELECT *
+FROM recipe
+JOIN steps ON steps.recipe_id = recipe.recipe_id
+LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
+JOIN ingre ON ingre.recipe_id = recipe.recipe_id
+WHERE recipe.recipe_id = {id};
+ """
 
     result = db.conn.execute(sqlalchemy.text(stmt))
     json = []
