@@ -70,6 +70,29 @@ def add_recipe(user_id: int, recipe: RecipeJson):
         raise HTTPException(status_code=404, detail="user_id not found."
                                                     " Please create a new user.")
     else:
+
+        ingredient_values = [
+            {
+                "recipe_id": new_recipe_id,
+                "ingredient_id": new_ingredient_id + i,
+                "ingredient_name": currentIngredient.ingredient_name,
+                "core_ingredient": currentIngredient.core_ingredient,
+                "quantity": currentIngredient.quantity,
+                "measurement": currentIngredient.measurement,
+            }
+            for i, currentIngredient in enumerate(recipe.ingredients)
+        ]
+
+        instruction_values = [
+            {
+                "instruction_id": new_instruction_id + i,
+                "recipe_id": new_recipe_id,
+                "step_order": currentInstruction.step_order,
+                "step_name": currentInstruction.step_name,
+            }
+            for i, currentInstruction in enumerate(recipe.instructions)
+        ]
+
         with db.engine.begin() as conn:
             conn.execute(
                 sqlalchemy.insert(db.recipes),
@@ -84,38 +107,9 @@ def add_recipe(user_id: int, recipe: RecipeJson):
                         "cookinglevel": recipe.cooking_level,
                         "recipe_description": recipe.recipe_description
                     }
-                ],
+                ]
             )
-
-            for i in range(len(recipe.ingredients)):
-                currentIngredient = recipe.ingredients[i]
-                current_ingredient_id = new_ingredient_id + i
-                conn.execute(
-                    sqlalchemy.insert(db.ingredients),
-                    [
-                        {
-                            "recipe_id": new_recipe_id,
-                            "ingredient_id": current_ingredient_id,
-                            "ingredient_name": currentIngredient.ingredient_name,
-                            "core_ingredient": currentIngredient.core_ingredient,
-                            "quantity": currentIngredient.quantity,
-                            "measurement": currentIngredient.measurement
-                        }
-                    ],
-                )
-            for i in range(len(recipe.instructions)):
-                currentInstruction = recipe.instructions[i]
-                current_instruction_id = new_instruction_id + i
-                conn.execute(
-                    sqlalchemy.insert(db.instructions),
-                    [
-                        {
-                            "instruction_id": current_instruction_id,
-                            "recipe_id": new_recipe_id,
-                            "step_order": currentInstruction.step_order,
-                            "step_name": currentInstruction.step_name
-                        }
-                    ],
-                )
+            conn.execute(sqlalchemy.insert(db.ingredients), ingredient_values)
+            conn.execute(sqlalchemy.insert(db.instructions), instruction_values)
 
     return new_recipe_id
