@@ -53,12 +53,14 @@ def add_recipe(user_id: int, recipe: RecipeJson):
     last_instruction_id = """ SELECT instructions.instruction_id
                               FROM instructions
                               ORDER BY instruction_id DESC"""
-    new_recipe_id = int(db.conn.execute(sqlalchemy.
-                                        text(last_recipe_id)).first()[0]) + 1
-    new_ingredient_id = int(db.conn.execute(sqlalchemy.
-                                            text(last_ingredient_id)).first()[0]) + 1
-    new_instruction_id = int(db.conn.execute(sqlalchemy.
-                                             text(last_instruction_id)).first()[0]) + 1
+    result = db.conn.execute(sqlalchemy.text(last_recipe_id)).first()
+    new_recipe_id = int(result[0]) + 1 if result else 0
+
+    result = db.conn.execute(sqlalchemy.text(last_ingredient_id)).first()
+    new_ingredient_id = int(result[0]) + 1 if result else 0
+
+    result = db.conn.execute(sqlalchemy.text(last_instruction_id)).first()
+    new_instruction_id = int(result[0]) + 1 if result else 0
 
     # Error checking
     count = 0

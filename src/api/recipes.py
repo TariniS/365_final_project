@@ -24,7 +24,8 @@ def get_recipe(id: str):
     * 'Steps': list of instructions for recipe in order
     * 'User Comments': list of comments left by other users for recipe
     """
-    stmt = f"""WITH steps AS (
+
+    query = """WITH steps AS (
   SELECT instructions.recipe_id, 
          ARRAY_AGG(instructions.step_name) AS steps
   FROM instructions
@@ -42,15 +43,15 @@ ingre AS (
   FROM ingredients
   GROUP BY ingredients.recipe_id
 )
-SELECT *
+SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, recipe.total_time, recipe.servings, recipe.spicelevel, recipe.cookinglevel, recipe.recipe_description, steps, comments, ingredients
 FROM recipe
 JOIN steps ON steps.recipe_id = recipe.recipe_id
 LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
 JOIN ingre ON ingre.recipe_id = recipe.recipe_id
-WHERE recipe.recipe_id = {id};
+WHERE recipe.recipe_id = :id;
  """
 
-    result = db.conn.execute(sqlalchemy.text(stmt))
+    result = db.conn.execute(sqlalchemy.text(query), {'id': id})
     json = []
     for row in result:
         json.append({
