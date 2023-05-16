@@ -5,7 +5,8 @@ from src import database as db
 router = APIRouter()
 
 class UserJSON(BaseModel):
-    user_name: str
+    firstname: str
+    lastname: str
 
 @router.post("/users/", tags=["users"])
 def add_user(user: UserJSON):
@@ -15,7 +16,7 @@ def add_user(user: UserJSON):
 
         The endpoint returns the id of the resulting user that was created.
         """
-    if user.user_name == "":
+    if user.firstname == "" or user.lastname == "":
         raise HTTPException(status_code=404, detail="Invalid Name.")
 
     lastUserId = db.conn.execute(
@@ -29,7 +30,8 @@ def add_user(user: UserJSON):
             [
                 {
                     "user_id": newUserId,
-                    "user_name": user.user_name,
+                    "firstname": user.firstname,
+                    "lastname": user.lastname
                 }
             ],
         )

@@ -24,7 +24,6 @@ class RecipeJson(BaseModel):
     servings: int
     spice_level: int
     cooking_level: int
-    recipe_description: str
     ingredients: List[Ingredient]
     instructions: List[Instruction]
 
@@ -73,8 +72,8 @@ def add_recipe(user_id: int, recipe: RecipeJson):
 
         ingredient_values = [
             {
-                "recipe_id": new_recipe_id,
                 "ingredient_id": new_ingredient_id + i,
+                "recipe_id": new_recipe_id,
                 "ingredient_name": currentIngredient.ingredient_name,
                 "core_ingredient": currentIngredient.core_ingredient,
                 "quantity": currentIngredient.quantity,
@@ -105,7 +104,6 @@ def add_recipe(user_id: int, recipe: RecipeJson):
                         "servings": recipe.servings,
                         "spicelevel": recipe.spice_level,
                         "cookinglevel": recipe.cooking_level,
-                        "recipe_description": recipe.recipe_description
                     }
                 ]
             )
