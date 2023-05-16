@@ -7,6 +7,8 @@ router = APIRouter()
 class UserJSON(BaseModel):
     firstname: str
     lastname: str
+    username: str
+    password: str
 
 @router.post("/users/", tags=["users"])
 def add_user(user: UserJSON):
@@ -16,23 +18,27 @@ def add_user(user: UserJSON):
 
         The endpoint returns the id of the resulting user that was created.
         """
-    if user.firstname == "" or user.lastname == "":
+    if user.firstname == "" or user.lastname == "" or user.username == "" \
+            or user.password == "":
         raise HTTPException(status_code=404, detail="Invalid Name.")
 
-    lastUserId = db.conn.execute(
-                    sqlalchemy.text(
-                    """SELECT user_id FROM users 
-                        ORDER BY user_id DESC LIMIT 1;"""))
-    newUserId = lastUserId.fetchone()[0] + 1
+    usercheck = """SELECT COUNT(*) FROM users WHERE username =:input_username"""
+    usercheck = db.conn.execute(sqlalchemy.text(usercheck), {'input_username': user.username})
+    if usercheck.fetchone()[0] > 0:
+        raise HTTPException(status_code=404, detail="Username is taken. Try again")
+
     with db.engine.begin() as conn:
         conn.execute(
             sqlalchemy.insert(db.users),
-            [
-                {
-                    "user_id": newUserId,
-                    "firstname": user.firstname,
-                    "lastname": user.lastname
-                }
-            ],
+            {
+                "firstname": user.firstname,
+                "lastname": user.lastname,
+                "username": user.username,
+                "password": user.password,
+            }
         )
+    newUserId = db.conn.execute(
+        sqlalchemy.text(
+            """SELECT user_id FROM users 
+            ORDER BY user_id DESC LIMIT 1;""")).fetchone()[0]
     return newUserId
