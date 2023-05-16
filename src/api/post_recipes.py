@@ -28,8 +28,8 @@ class RecipeJson(BaseModel):
     instructions: List[Instruction]
 
 
-@router.post("/recipes/{user_id}/recipe/", tags=["recipes"])
-def add_recipe(user_id: int, recipe: RecipeJson):
+@router.post("/recipes/{username}/recipe/", tags=["recipes"])
+def add_recipe(username: str, recipe: RecipeJson):
     """
     This endpoint adds a recipe to Recipe. The recipe is represented
     by a recipe name, total time, servings, spice level, cooking level
@@ -38,76 +38,61 @@ def add_recipe(user_id: int, recipe: RecipeJson):
 
     The endpoint returns the id of the resulting recipe that was created.
     """
-    existing_user_query = """ SELECT *
-                              FROM users 
-                              WHERE users.user_id = :user_id"""
-    existing_user = db.conn.execute(sqlalchemy.text(existing_user_query),
-                                    {'user_id': user_id})
-    last_recipe_id = """ SELECT recipe.recipe_id
-                              FROM recipe
-                              ORDER BY recipe_id DESC"""
-    last_ingredient_id = """ SELECT ingredients.ingredient_id
-                              FROM ingredients
-                              ORDER BY ingredient_id DESC"""
-    last_instruction_id = """ SELECT instructions.instruction_id
-                              FROM instructions
-                              ORDER BY instruction_id DESC"""
-    result = db.conn.execute(sqlalchemy.text(last_recipe_id)).first()
-    new_recipe_id = int(result[0]) + 1 if result else 0
 
-    result = db.conn.execute(sqlalchemy.text(last_ingredient_id)).first()
-    new_ingredient_id = int(result[0]) + 1 if result else 0
-
-    result = db.conn.execute(sqlalchemy.text(last_instruction_id)).first()
-    new_instruction_id = int(result[0]) + 1 if result else 0
+    usercheck = """SELECT COUNT(*) FROM users WHERE username =:user_name"""
+    usercheck = db.conn.execute(sqlalchemy.text(usercheck), {'user_name': username}).fetchone()[0]
 
     # Error checking
-    count = 0
-    for row in existing_user:
-        count += 1
-    if count == 0:
-        raise HTTPException(status_code=404, detail="user_id not found."
-                                                    " Please create a new user.")
-    else:
+    if usercheck == 0:
+        raise HTTPException(status_code=404, detail="username not found."
+                                                    "Please check or create a new user.")
 
-        ingredient_values = [
-            {
-                "ingredient_id": new_ingredient_id + i,
-                "recipe_id": new_recipe_id,
-                "ingredient_name": currentIngredient.ingredient_name,
-                "core_ingredient": currentIngredient.core_ingredient,
-                "quantity": currentIngredient.quantity,
-                "measurement": currentIngredient.measurement,
-            }
-            for i, currentIngredient in enumerate(recipe.ingredients)
-        ]
+    user_id = """SELECT user_id FROM users WHERE username =:user_name"""
+    user_id = db.conn.execute(sqlalchemy.text(user_id),
+                              {'user_name': username}).fetchone()[0]
 
-        instruction_values = [
-            {
-                "instruction_id": new_instruction_id + i,
-                "recipe_id": new_recipe_id,
-                "step_order": currentInstruction.step_order,
-                "step_name": currentInstruction.step_name,
-            }
-            for i, currentInstruction in enumerate(recipe.instructions)
-        ]
+    with db.engine.begin() as conn:
+        conn.execute(
+            sqlalchemy.insert(db.recipes),
+            [
+                {
+                    "recipe_name": recipe.recipe_name,
+                    "user_id": user_id,
+                    "total_time": recipe.total_time,
+                    "servings": recipe.servings,
+                    "spicelevel": recipe.spice_level,
+                    "cookinglevel": recipe.cooking_level,
+                }
+            ]
+        )
 
-        with db.engine.begin() as conn:
-            conn.execute(
-                sqlalchemy.insert(db.recipes),
-                [
-                    {
-                        "recipe_id": new_recipe_id,
-                        "recipe_name": recipe.recipe_name,
-                        "user_id": user_id,
-                        "total_time": recipe.total_time,
-                        "servings": recipe.servings,
-                        "spicelevel": recipe.spice_level,
-                        "cookinglevel": recipe.cooking_level,
-                    }
-                ]
-            )
-            conn.execute(sqlalchemy.insert(db.ingredients), ingredient_values)
-            conn.execute(sqlalchemy.insert(db.instructions), instruction_values)
+    new_recipe_id = db.conn.execute(
+        sqlalchemy.text(
+            """SELECT recipe_id FROM recipe 
+            ORDER BY recipe_id DESC LIMIT 1;""")).fetchone()[0]
+
+    ingredient_values = [
+        {
+            "recipe_id": new_recipe_id,
+            "ingredient_name": currentIngredient.ingredient_name,
+            "core_ingredient": currentIngredient.core_ingredient,
+            "quantity": currentIngredient.quantity,
+            "measurement": currentIngredient.measurement,
+        }
+        for i, currentIngredient in enumerate(recipe.ingredients)
+    ]
+
+    instruction_values = [
+        {
+            "recipe_id": new_recipe_id,
+            "step_order": currentInstruction.step_order,
+            "step_name": currentInstruction.step_name,
+        }
+        for i, currentInstruction in enumerate(recipe.instructions)
+    ]
+
+    with db.engine.begin() as conn:
+        conn.execute(sqlalchemy.insert(db.ingredients), ingredient_values)
+        conn.execute(sqlalchemy.insert(db.instructions), instruction_values)
 
     return new_recipe_id
