@@ -42,7 +42,6 @@ def add_recipe(username: str, recipe: RecipeJson):
     usercheck = """SELECT COUNT(*) FROM users WHERE username =:user_name"""
     usercheck = db.conn.execute(sqlalchemy.text(usercheck), {'user_name': username}).fetchone()[0]
 
-    # Error checking
     if usercheck == 0:
         raise HTTPException(status_code=404, detail="username not found."
                                                     "Please check or create a new user.")
