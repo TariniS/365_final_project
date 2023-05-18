@@ -59,14 +59,14 @@ def upgrade():
         sa.Column('step_name', sa.String),
     ),
     op.create_table(
-        'recipe_tags',
-        sa.Column('tag_id', sa.Integer, sa.ForeignKey('tags.tag_id'), primary_key=True),
-        sa.Column('recipe_id', sa.Integer, sa.ForeignKey('recipes.recipe_id'), primary_key=True),
+        'tags',
+        sa.Column('tag_id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('tag', sa.Text),
     ),
     op.create_table(
-        'tags',
-        sa.Column('tag_id', sa.Integer, primary_key=True, autoincrement=True),
+        'recipe_tags',
+        sa.Column('tag_id', sa.Integer, sa.ForeignKey('tags.tag_id'), primary_key=True),
+        sa.Column('recipe_id', sa.Integer, sa.ForeignKey('recipes.recipe_id'), primary_key=True),
         sa.Column('tag', sa.Text),
     ),
     op.create_table(
