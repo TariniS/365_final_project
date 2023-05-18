@@ -91,7 +91,6 @@ def add_recipe(username: str, recipe: RecipeJson):
     ]
 
     with db.engine.begin() as conn:
-        # conn.execute(sqlalchemy.insert(db.ingredients), ingredient_values)
         conn.execute(sqlalchemy.insert(db.instructions), instruction_values)
 
     for currentIngredient in recipe.ingredients:
