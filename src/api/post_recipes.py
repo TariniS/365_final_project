@@ -28,6 +28,17 @@ class RecipeJson(BaseModel):
     instructions: List[Instruction]
 
 
+def upsert_ingredient(ingredient_name: str, core_ingredient: str):
+    with db.engine.begin() as conn:
+        upsert_query = """
+            INSERT INTO ingredients (name, core_ingredient)
+            VALUES (:ingredient_name, :core_ingredient)
+            ON CONFLICT (name) DO NOTHING
+        """
+
+        conn.execute(sqlalchemy.text(upsert_query), {'ingredient_name': ingredient_name, 'core_ingredient': core_ingredient})
+
+
 @router.post("/recipes/{username}/recipe/", tags=["recipes"])
 def add_recipe(username: str, recipe: RecipeJson):
     """
@@ -59,27 +70,16 @@ def add_recipe(username: str, recipe: RecipeJson):
                     "user_id": user_id,
                     "total_time": recipe.total_time,
                     "servings": recipe.servings,
-                    "spicelevel": recipe.spice_level,
-                    "cookinglevel": recipe.cooking_level,
+                    "spice_level": recipe.spice_level,
+                    "cooking_level": recipe.cooking_level,
                 }
             ]
         )
 
     new_recipe_id = db.conn.execute(
         sqlalchemy.text(
-            """SELECT recipe_id FROM recipe 
+            """SELECT recipe_id FROM recipes 
             ORDER BY recipe_id DESC LIMIT 1;""")).fetchone()[0]
-
-    ingredient_values = [
-        {
-            "recipe_id": new_recipe_id,
-            "ingredient_name": currentIngredient.ingredient_name,
-            "core_ingredient": currentIngredient.core_ingredient,
-            "quantity": currentIngredient.quantity,
-            "measurement": currentIngredient.measurement,
-        }
-        for i, currentIngredient in enumerate(recipe.ingredients)
-    ]
 
     instruction_values = [
         {
@@ -91,7 +91,27 @@ def add_recipe(username: str, recipe: RecipeJson):
     ]
 
     with db.engine.begin() as conn:
-        conn.execute(sqlalchemy.insert(db.ingredients), ingredient_values)
+        # conn.execute(sqlalchemy.insert(db.ingredients), ingredient_values)
         conn.execute(sqlalchemy.insert(db.instructions), instruction_values)
+
+    for currentIngredient in recipe.ingredients:
+        upsert_ingredient(currentIngredient.ingredient_name, currentIngredient.core_ingredient)
+        ingredient_id = db.conn.execute(
+            sqlalchemy.text(
+                "SELECT ingredient_id FROM ingredients WHERE name = :name"
+            ),
+            {"name": currentIngredient.ingredient_name},
+        ).fetchone()[0]
+
+        with db.engine.begin() as conn:
+            conn.execute(
+                sqlalchemy.insert(db.recipe_ingredients),
+                {
+                    "recipe_id": new_recipe_id,
+                    "ingredient_id": ingredient_id,
+                    "quantity": currentIngredient.quantity,
+                    "measurement": currentIngredient.measurement,
+                },
+            )
 
     return new_recipe_id
