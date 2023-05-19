@@ -18,6 +18,7 @@ class Instruction(BaseModel):
     step_name: str
 
 
+
 class RecipeJson(BaseModel):
     recipe_name: str
     total_time: str
@@ -26,6 +27,7 @@ class RecipeJson(BaseModel):
     cooking_level: int
     ingredients: List[Ingredient]
     instructions: List[Instruction]
+    tags: List[str]
 
 
 def upsert_ingredient(ingredient_name: str, core_ingredient: str):
@@ -37,6 +39,17 @@ def upsert_ingredient(ingredient_name: str, core_ingredient: str):
         """
 
         conn.execute(sqlalchemy.text(upsert_query), {'ingredient_name': ingredient_name, 'core_ingredient': core_ingredient})
+
+
+def upsert_tags(tag_name: str):
+    with db.engine.begin() as conn:
+        upsert_query = """
+            INSERT INTO tags (tag)
+            VALUES (:tag_name)
+            ON CONFLICT (tag) DO NOTHING
+        """
+
+        conn.execute(sqlalchemy.text(upsert_query), {'tag_name': tag_name})
 
 
 @router.post("/recipes/{username}/recipe/", tags=["recipes"])
@@ -110,6 +123,24 @@ def add_recipe(username: str, recipe: RecipeJson):
                     "ingredient_id": ingredient_id,
                     "quantity": currentIngredient.quantity,
                     "measurement": currentIngredient.measurement,
+                },
+            )
+    for current_tag in recipe.tags:
+        upsert_tags(current_tag)
+        tag_id = db.conn.execute(
+            sqlalchemy.text(
+                "SELECT tag_id FROM tags WHERE tag = :tag"
+            ),
+            {"tag": current_tag},
+        ).fetchone()[0]
+
+        with db.engine.begin() as conn:
+            conn.execute(
+                sqlalchemy.insert(db.recipe_tags),
+                {
+                    "tag_id": tag_id,
+                    "recipe_id": new_recipe_id,
+                    "tag": current_tag
                 },
             )
 
