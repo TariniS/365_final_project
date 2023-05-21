@@ -142,6 +142,7 @@ def list_recipes(
     * `Spice Level`: The spice level of recipe.
     * 'Cooking Level': The cooking level of the recipe
     * 'Servings': The total serving size of the recipe
+    * 'Tags': The tags associated with the recipe.
 
     You can filter for recipes whose name contains a string by using the
     `name` query parameter.
@@ -160,9 +161,9 @@ def list_recipes(
     if sort == recipe_sort_options.time:
         order_by = db.recipes.c.total_time
     elif sort == recipe_sort_options.spiceLevel:
-        order_by = db.recipes.c.spicelevel
+        order_by = db.recipes.c.spice_level
     elif sort == recipe_sort_options.cookingLevel:
-        order_by = db.recipes.c.cookinglevel
+        order_by = db.recipes.c.cooking_level
     elif sort == recipe_sort_options.servings:
         order_by = db.recipes.c.servings
     else:
@@ -173,15 +174,15 @@ def list_recipes(
         db.recipes.c.recipe_name,
         db.recipes.c.total_time,
         db.recipes.c.servings,
-        db.recipes.c.spicelevel,
-        db.recipes.c.cookinglevel,
-        db.recipes.c.recipe_description)
+        db.recipes.c.spice_level,
+        db.recipes.c.cooking_level)
         .limit(limit)
         .offset(offset)
         .order_by(order_by, db.recipes.c.recipe_id))
 
     if tag != "":
-        stmt = stmt.where(db.recipes.c.recipe_description.ilike(f"%{tag}%"))
+        stmt = stmt.where(db.tags.c.tag.ilike(f"%{tag}%"))
+        stmt = stmt.select_from(db.recipe_tags.join(db.tags).join(db.recipes))
 
     with db.engine.connect() as conn:
         result = conn.execute(stmt)
@@ -190,12 +191,11 @@ def list_recipes(
             json.append(
                 {
                     "recipe_id": row.recipe_id,
-                    "recipe name": row.recipe_name,
-                    "total time": row.total_time,
-                    "spice level": row.spicelevel,
-                    "cooking level": row.cookinglevel,
-                    "servings": row.servings,
-                    "description": row.recipe_description
+                    "recipe_name": row.recipe_name,
+                    "total_time": row.total_time,
+                    "spice_level": row.spice_level,
+                    "cooking_level": row.cooking_level,
+                    "servings": row.servings
                 }
             )
 

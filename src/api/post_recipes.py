@@ -17,8 +17,6 @@ class Instruction(BaseModel):
     step_order: int
     step_name: str
 
-
-
 class RecipeJson(BaseModel):
     recipe_name: str
     total_time: str
