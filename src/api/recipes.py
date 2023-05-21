@@ -32,24 +32,34 @@ def get_recipe(id: str):
   GROUP BY instructions.recipe_id
 ),
 comments AS (
-  SELECT recipe_rating.recipe_id, 
-         ARRAY_AGG(recipe_rating.recipe_comment) AS comments
-  FROM recipe_rating
-  GROUP BY recipe_rating.recipe_id
+  SELECT recipe_ratings.recipe_id, 
+         ARRAY_AGG(recipe_ratings.recipe_comment) AS comments
+  FROM recipe_ratings
+  GROUP BY recipe_ratings.recipe_id
 ),
 ingre AS (
-  SELECT ingredients.recipe_id, 
-         ARRAY_AGG(ingredients.ingredient_name) AS ingredients
-  FROM ingredients
-  GROUP BY ingredients.recipe_id
+  SELECT recipe_ingredients.recipe_id, 
+         ARRAY_AGG(ingredients.name) AS ingredients
+  FROM recipe_ingredients
+  JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+  GROUP BY recipe_ingredients.recipe_id
+),
+recipe_tags AS (
+  SELECT recipe_tags.recipe_id,
+         ARRAY_AGG(tags.tag) AS tags
+  FROM recipe_tags
+  JOIN tags ON recipe_tags.tag_id = tags.tag_id
+  GROUP BY recipe_tags.recipe_id
 )
-SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, recipe.total_time, recipe.servings, recipe.spicelevel, recipe.cookinglevel, recipe.recipe_description, steps, comments, ingredients
-FROM recipe
+SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, recipe.total_time, recipe.servings, recipe.spice_level, recipe.cooking_level, steps, comments, ingredients, tags
+FROM recipes AS recipe
 JOIN steps ON steps.recipe_id = recipe.recipe_id
 LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
 JOIN ingre ON ingre.recipe_id = recipe.recipe_id
+LEFT JOIN recipe_tags ON recipe_tags.recipe_id = recipe.recipe_id
 WHERE recipe.recipe_id = :id;
- """
+"""
+
 
     result = db.conn.execute(sqlalchemy.text(query), {'id': id})
     json = []
@@ -58,12 +68,12 @@ WHERE recipe.recipe_id = :id;
             "Recipe Name": row.recipe_name,
             "Cooking Time": row.total_time,
             "Servings": row.servings,
-            "Spice Level": row.spicelevel,
-            "Cooking Level": row.cookinglevel,
-            "Description": row.recipe_description,
+            "Spice Level": row.spice_level,
+            "Cooking Level": row.cooking_level,
             "Ingredients": row.ingredients,
             "Steps": row.steps,
-            "User Comments": row.comments
+            "User Comments": row.comments,
+            "Tags": row.tags
         })
     if json == []:
         raise HTTPException(status_code=404, detail="recipe not found.")
