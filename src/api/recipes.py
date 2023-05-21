@@ -94,13 +94,17 @@ def get_recipes_by_ingredients(ingredient_list: str):
 
     json = None
     ingredient_list = ingredient_list.split(",")
+    print(ingredient_list)
 
-    query = """ SELECT ingredients.recipe_id, recipe.recipe_name, COUNT(*) AS frequency
-                from ingredients
-                JOIN recipe ON ingredients.recipe_id = recipe.recipe_id
-                WHERE ingredients.core_ingredient = ANY(:ingredient_list)
-                GROUP BY ingredients.recipe_id, recipe.recipe_name 
-                ORDER BY frequency DESC"""
+    query = """
+        SELECT recipes.recipe_id, recipes.recipe_name, COUNT(*) AS frequency
+        FROM recipe_ingredients
+        JOIN recipes ON recipe_ingredients.recipe_id = recipes.recipe_id
+        JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+        WHERE ingredients.core_ingredient = ANY(:ingredient_list)
+        GROUP BY recipes.recipe_id, recipes.recipe_name 
+        ORDER BY frequency DESC
+    """
 
     result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list})
     json_vals = []
