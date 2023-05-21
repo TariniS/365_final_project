@@ -4,6 +4,8 @@ from sqlalchemy import func
 from fastapi import APIRouter, HTTPException
 from enum import Enum
 from src import database as db
+import psycopg2
+from psycopg2.extensions import adapt
 from typing import List
 
 router = APIRouter()
@@ -79,44 +81,74 @@ WHERE recipe.recipe_id = :id;
         raise HTTPException(status_code=404, detail="recipe not found.")
     return json
 
+
 @router.get("/findrecipes/", tags=["recipes"])
 def get_recipes_by_ingredients(ingredient_list: str):
     """
-    This endpoint allows a user ot search for recipes based on ingredients
+    This endpoint allows a user to search for recipes based on ingredients
     they have available to them.
     For each matched recipe, it returns:
     * `Recipe Name`: The name of the recipe.
-    * `Recipe Id': The internal id of the recipe.
-    The 'ingredient_list' parameters are used to search for recipes that contain
-    desired ingredients. The order in which recipes are returned are based on
-    highest match.
+    * `Recipe Id`: The internal id of the recipe.
+    The 'ingredient_list' parameter is used to search for recipes that contain
+    desired ingredients. The order in which recipes are returned is based on
+    the highest match.
+
     """
 
-    json = None
-    ingredient_list = ingredient_list.split(",")
-    print(ingredient_list)
+    ingredient_list2 = ingredient_list.split(",")
+    ingredient_list2 = [ingredient.strip() for ingredient in ingredient_list2]
+    ingredient_array = adapt(ingredient_list2)
+
+    print(ingredient_array)
+
+
 
     query = """
-        SELECT recipes.recipe_id, recipes.recipe_name, COUNT(*) AS frequency
-        FROM recipe_ingredients
-        JOIN recipes ON recipe_ingredients.recipe_id = recipes.recipe_id
-        JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-        WHERE ingredients.core_ingredient = ANY(:ingredient_list)
-        GROUP BY recipes.recipe_id, recipes.recipe_name 
-        ORDER BY frequency DESC
+    SELECT recipes.recipe_id, recipes.recipe_name,
+    ARRAY_AGG(
+        CASE WHEN ingredients.name = ANY(:ingredient_list)
+             THEN ingredients.core_ingredient
+             ELSE ingredients.name
+        END
+    ) AS ingredients
+FROM recipes
+JOIN recipe_ingredients ON recipes.recipe_id = recipe_ingredients.recipe_id
+JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+WHERE EXISTS (
+    SELECT 1
+    FROM recipe_ingredients
+    JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+    WHERE recipes.recipe_id = recipe_ingredients.recipe_id
+      AND ingredients.name = ANY(:ingredient_list)
+)
+GROUP BY recipes.recipe_id, recipes.recipe_name;
     """
 
-    result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list})
+    params = {'ingredient_list': ingredient_array}
+
+    # Create a text
+    stmt = sqlalchemy.text(query)
+    # Execute the query
+    result = db.conn.execute(stmt, params)
+
+    # Compile the statement with bound parameters
+    compiled_stmt = stmt.compile(compile_kwargs={"literal_binds": True})
+
+    # Print the compiled SQL query
+    print(compiled_stmt)
+
+    # result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_array})
+
     json_vals = []
     for row in result:
         json = {
+            "recipe_id": row[0],
             "recipe_name": row[1],
-            "recipe_id": row[0]
+            "ingredients": row[2]
         }
         json_vals.append(json)
-
     return json_vals
-
 
 class recipe_sort_options(str, Enum):
     time = "total_time"
