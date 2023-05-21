@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/recipes/{id}", tags=["recipes"])
-def get_recipe(id: str):
+def get_recipe(id: int):
     """
     This endpoint returns a single recipe by its identifier.
     For each recipe it returns:
@@ -51,7 +51,7 @@ recipe_tags AS (
   JOIN tags ON recipe_tags.tag_id = tags.tag_id
   GROUP BY recipe_tags.recipe_id
 )
-SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, recipe.total_time, recipe.servings, recipe.spice_level, recipe.cooking_level, steps, comments, ingredients, tags
+SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, recipe.total_time, recipe.servings, recipe.spice_level, recipe.cooking_level, recipe.recipe_type, steps, comments, ingredients, tags
 FROM recipes AS recipe
 JOIN steps ON steps.recipe_id = recipe.recipe_id
 LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
@@ -70,6 +70,7 @@ WHERE recipe.recipe_id = :id;
             "Servings": row.servings,
             "Spice Level": row.spice_level,
             "Cooking Level": row.cooking_level,
+            "Recipe Type": row.recipe_type,
             "Ingredients": row.ingredients,
             "Steps": row.steps,
             "User Comments": row.comments,
