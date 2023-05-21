@@ -60,7 +60,7 @@ def add_rating(recipe_id: int, rating: Rating):
 
     new_rating_id = db.conn.execute(
         sqlalchemy.text(
-            """SELECT rating_id FROM recipe_rating 
+            """SELECT rating_id FROM recipe_ratings
             ORDER BY rating_id DESC LIMIT 1;""")).fetchone()[0]
 
     return new_rating_id

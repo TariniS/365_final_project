@@ -29,7 +29,7 @@ def upgrade():
     op.create_table(
         'ingredients',
         sa.Column('ingredient_id', sa.Integer, primary_key=True, autoincrement=True),
-        sa.Column('name', sa.String(length=255), nullable=False),
+        sa.Column('name', sa.String(length=255), nullable=False, ),
         sa.Column('core_ingredient', sa.String(length=255), nullable=False)
     ),
     op.create_table(
