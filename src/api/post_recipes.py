@@ -23,6 +23,7 @@ class RecipeJson(BaseModel):
     servings: int
     spice_level: int
     cooking_level: int
+    recipe_type: str
     ingredients: List[Ingredient]
     instructions: List[Instruction]
     tags: List[str]
@@ -83,6 +84,7 @@ def add_recipe(username: str, recipe: RecipeJson):
                     "servings": recipe.servings,
                     "spice_level": recipe.spice_level,
                     "cooking_level": recipe.cooking_level,
+                    "recipe_type": recipe.recipe_type
                 }
             ]
         )
