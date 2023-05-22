@@ -98,57 +98,60 @@ def get_recipes_by_ingredients(ingredient_list: str):
     ingredient_list2 = [ingredient.strip() for ingredient in ingredient_list2]
 
     query = """
-    WITH ingredients_modified AS (
-SELECT recipes.recipe_id, recipes.recipe_name,
-    ARRAY_AGG(
-        CASE WHEN ingredients.core_ingredient = ANY(:ingredient_list)
-             THEN ingredients.core_ingredient
-             ELSE ingredients.name
-        END
-    ) AS ingredients, 
-    COUNT(DISTINCT CASE
-                WHEN ingredients.core_ingredient = ANY(:ingredient_list) 
-                    THEN ingredients.name
-            END) AS num_modified_ingredients
-FROM recipes
-JOIN recipe_ingredients ON recipes.recipe_id = recipe_ingredients.recipe_id
-JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-WHERE recipes.recipe_id IN (
-    SELECT DISTINCT recipe_id
-    FROM recipe_ingredients
-    JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-    WHERE ingredients.core_ingredient = ANY(:ingredient_list)
-)
-GROUP BY recipes.recipe_id, recipes.recipe_name
-),
+            WITH ingredients_modified AS (
+                SELECT r.recipe_id, r.recipe_name,
+                        ARRAY_AGG(
+                            CASE
+                                WHEN i.core_ingredient = ANY(:ingredient_list)
+                                    THEN i.core_ingredient
+                                ELSE i.name
+                            END
+                        ) AS ingredients,
+                        COUNT(DISTINCT CASE
+                            WHEN i.core_ingredient = ANY(:ingredient_list)
+                                THEN i.name
+                        END) AS num_modified_ingredients
+                FROM recipes r
+                JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
+                JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
+                WHERE r.recipe_id IN (
+                        SELECT DISTINCT recipe_id
+                        FROM recipe_ingredients ri
+                        JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
+                        WHERE i.core_ingredient = ANY(:ingredient_list))
+                GROUP BY r.recipe_id, r.recipe_name),
+                
+            recipe_ids AS (
+                SELECT DISTINCT ri.recipe_id, ri.ingredient_id, 
+                                i.name AS ingredient_name, i.core_ingredient
+                FROM recipe_ingredients ri
+                JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
+                WHERE i.core_ingredient = ANY(:ingredient_list)),
+                
+            instructions_filtered AS (
+                SELECT ri.recipe_id, 
+                        ARRAY_AGG(
+                            CASE
+                                WHEN ri.core_ingredient = ANY(:ingredient_list) AND 
+                                        POSITION(ri.ingredient_name IN ins.step_name) > 0
+                                THEN REPLACE(ins.step_name, ri.ingredient_name, 
+                                                ri.core_ingredient)
+                                ELSE ins.step_name
+                            END
+                            ) AS modified_instructions
+                FROM instructions ins
+                JOIN recipe_ids ri ON ri.recipe_id = ins.recipe_id
+                GROUP BY ri.recipe_id)
+                
+            SELECT inf.recipe_id, im.recipe_name, im.ingredients, 
+                        inf.modified_instructions
+            FROM instructions_filtered inf
+            JOIN ingredients_modified im ON im.recipe_id = inf.recipe_id
+            ORDER BY num_modified_ingredients DESC, recipe_id
+            """
 
- recipe_ids AS 
-(
-SELECT DISTINCT ri.recipe_id, ri.ingredient_id, ingredients.name AS ingredient_name, ingredients.core_ingredient AS core_ingredient
-    FROM recipe_ingredients ri
-    JOIN ingredients ON ri.ingredient_id = ingredients.ingredient_id
-    WHERE ingredients.core_ingredient = ANY(:ingredient_list)
-), 
-instructions_filtered AS (
-SELECT   recipe_ids.recipe_id,ARRAY_AGG(
-             CASE
-                WHEN recipe_ids.core_ingredient = ANY(:ingredient_list) AND POSITION(recipe_ids.ingredient_name IN instructions.step_name) > 0
-                    THEN REPLACE(instructions.step_name, recipe_ids.ingredient_name, recipe_ids.core_ingredient)
-                ELSE instructions.step_name
-            END
-          
-        ) AS modified_instructions
-FROM instructions
-JOIN recipe_ids ON recipe_ids.recipe_id = instructions.recipe_id
-GROUP BY recipe_ids.recipe_id
-)
-
-SELECT instructions_filtered.recipe_id, ingredients_modified.recipe_name, ingredients_modified.ingredients, instructions_filtered.modified_instructions
-from instructions_filtered
-JOIN ingredients_modified ON ingredients_modified.recipe_id = instructions_filtered.recipe_id
-ORDER BY num_modified_ingredients DESC, recipe_id
-"""
-    result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list2})
+    result = db.conn.execute(sqlalchemy.text(query),
+                             {'ingredient_list': ingredient_list2})
     json = []
     for row in result:
         json.append({
