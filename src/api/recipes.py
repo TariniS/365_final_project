@@ -1,11 +1,14 @@
 import sqlalchemy
 from pydantic import BaseModel
-from sqlalchemy import func
+from sqlalchemy import func, String, literal
 from fastapi import APIRouter, HTTPException
 from enum import Enum
 from src import database as db
+from sqlalchemy import text
+from sqlalchemy import bindparam
+from sqlalchemy.dialects.postgresql import ARRAY
 import psycopg2
-from psycopg2.extensions import adapt
+from sqlalchemy.dialects.postgresql import array
 from typing import List
 
 router = APIRouter()
@@ -96,19 +99,14 @@ def get_recipes_by_ingredients(ingredient_list: str):
     the highest match.
 
     """
-
     ingredient_list2 = ingredient_list.split(",")
     ingredient_list2 = [ingredient.strip() for ingredient in ingredient_list2]
-    ingredient_array = adapt(ingredient_list2)
-
-    print(ingredient_array)
-
-
 
     query = """
-    SELECT recipes.recipe_id, recipes.recipe_name,
+SELECT recipes.recipe_id, recipes.recipe_name,
     ARRAY_AGG(
-        CASE WHEN ingredients.name = ANY(:ingredient_list)
+        CASE WHEN ingredients.core_ingredient = ANY(:ingredient_list)
+
              THEN ingredients.core_ingredient
              ELSE ingredients.name
         END
@@ -116,40 +114,30 @@ def get_recipes_by_ingredients(ingredient_list: str):
 FROM recipes
 JOIN recipe_ingredients ON recipes.recipe_id = recipe_ingredients.recipe_id
 JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-WHERE EXISTS (
-    SELECT 1
+WHERE recipes.recipe_id IN (
+    SELECT DISTINCT recipe_id
     FROM recipe_ingredients
     JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-    WHERE recipes.recipe_id = recipe_ingredients.recipe_id
-      AND ingredients.name = ANY(:ingredient_list)
+    WHERE ingredients.core_ingredient = ANY(:ingredient_list)
 )
-GROUP BY recipes.recipe_id, recipes.recipe_name;
-    """
 
-    params = {'ingredient_list': ingredient_array}
+GROUP BY recipes.recipe_id, recipes.recipe_name
+"""
+    result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list2})
+    count = 0
+    json=[]
 
-    # Create a text
-    stmt = sqlalchemy.text(query)
-    # Execute the query
-    result = db.conn.execute(stmt, params)
-
-    # Compile the statement with bound parameters
-    compiled_stmt = stmt.compile(compile_kwargs={"literal_binds": True})
-
-    # Print the compiled SQL query
-    print(compiled_stmt)
-
-    # result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_array})
-
-    json_vals = []
     for row in result:
-        json = {
-            "recipe_id": row[0],
-            "recipe_name": row[1],
-            "ingredients": row[2]
-        }
-        json_vals.append(json)
-    return json_vals
+        json.append({
+            "Recipe Name": row.recipe_name,
+            "Recipe Id": row.recipe_id,
+            "Ingredients": row.ingredients
+        })
+    if json == []:
+        raise HTTPException(status_code=404, detail="recipe not found.")
+    return json
+
+
 
 class recipe_sort_options(str, Enum):
     time = "total_time"
