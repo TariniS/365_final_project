@@ -28,10 +28,12 @@ def add_rating(recipe_id: int, rating: Rating):
     The endpoint returns the id of the recipe rating that was created.
     """
     usercheck = """SELECT COUNT(*) FROM users WHERE username =:user_name"""
-    usercheck = db.conn.execute(sqlalchemy.text(usercheck), {'user_name': rating.username}).fetchone()[0]
+    usercheck = db.conn.execute(sqlalchemy.text(usercheck),
+                                {'user_name': rating.username}).fetchone()[0]
 
     if usercheck == 0:
-        raise HTTPException(status_code=404, detail="username not found. Please check or create new user.")
+        raise HTTPException(status_code=404, detail="username not found. "
+                                                    "Please check or create new user.")
 
     user_id = """SELECT user_id FROM users WHERE username =:user_name"""
     user_id = db.conn.execute(sqlalchemy.text(user_id),

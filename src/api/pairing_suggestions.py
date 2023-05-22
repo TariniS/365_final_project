@@ -7,6 +7,15 @@ from typing import List
 router = APIRouter()
 
 def get_pairing_suggestions(pairing_type: str, recipe_tags: List[str]):
+    """
+    This function returns suggestions based on pairing_type and recipe_tags.
+    It does so by finding the pairing types for which a recipe can be paired
+    through matching recipe_tags.
+    For each recipe_id it returns:
+    * `Recipe_type`: The type of the recipe (food, drink or dessert).
+    * `Recipe_id`: The internal id of the pairing suggestion's recipe.
+    * 'Recipe_name': The internal name of the pairing suggestion's recipe.
+    """
     stmt = (
         sqlalchemy.select(
             db.recipes.c.recipe_id,
@@ -34,11 +43,20 @@ def get_pairing_suggestions(pairing_type: str, recipe_tags: List[str]):
 
 @router.get("/recipes/{recipe_id}/pairings", tags=["recipes"])
 def recipe_pairing_suggestions(recipe_id: int):
+    """
+    This endpoint returns pairing suggestion(s) for a recipe based matching recipe_tags.
+    similarity. It orders the suggestions by type, and then by the recipe name.
+    For each recipe_id it returns:
+    * `Recipe_type`: The type of the recipe (food, drink or dessert).
+    * `Recipe_id`: The internal id of the pairing suggestion's recipe.
+    * 'Recipe_name': The internal name of the pairing suggestion's recipe.
+    """
 
     recipe_type = """SELECT recipes.recipe_type
                         FROM recipes
                         WHERE recipes.recipe_id = :id"""
-    recipe_type = db.conn.execute(sqlalchemy.text(recipe_type), {'id': recipe_id}).fetchone()[0]
+    recipe_type = db.conn.execute(sqlalchemy.text(recipe_type),
+                                  {'id': recipe_id}).fetchone()[0]
 
     recipe_tags = """WITH recipe_tags AS (
                           SELECT recipe_tags.recipe_id,
@@ -50,7 +68,8 @@ def recipe_pairing_suggestions(recipe_id: int):
                     FROM recipes AS recipe
                     LEFT JOIN recipe_tags ON recipe_tags.recipe_id = recipe.recipe_id
                     WHERE recipe.recipe_id = :id"""
-    recipe_tags = db.conn.execute(sqlalchemy.text(recipe_tags), {'id': recipe_id}).fetchone()[0]
+    recipe_tags = db.conn.execute(sqlalchemy.text(recipe_tags),
+                                  {'id': recipe_id}).fetchone()[0]
 
     # Define the pairing types based on the recipe type
     if recipe_type == "drink":
@@ -69,6 +88,4 @@ def recipe_pairing_suggestions(recipe_id: int):
         suggestions = get_pairing_suggestions(pairing_type, recipe_tags)
         pairing_suggestions[pairing_type] = suggestions
 
-    return {
-        "pairing_suggestions": pairing_suggestions
-    }
+    return {"pairing_suggestions": pairing_suggestions}
