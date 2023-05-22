@@ -37,7 +37,9 @@ def upsert_ingredient(ingredient_name: str, core_ingredient: str):
             ON CONFLICT (name) DO NOTHING
         """
 
-        conn.execute(sqlalchemy.text(upsert_query), {'ingredient_name': ingredient_name, 'core_ingredient': core_ingredient})
+        conn.execute(sqlalchemy.text(upsert_query),
+                     {'ingredient_name': ingredient_name,
+                      'core_ingredient': core_ingredient})
 
 
 def upsert_tags(tag_name: str):
@@ -47,7 +49,6 @@ def upsert_tags(tag_name: str):
             VALUES (:tag_name)
             ON CONFLICT (tag) DO NOTHING
         """
-
         conn.execute(sqlalchemy.text(upsert_query), {'tag_name': tag_name})
 
 
@@ -63,7 +64,8 @@ def add_recipe(username: str, recipe: RecipeJson):
     """
 
     usercheck = """SELECT COUNT(*) FROM users WHERE username =:user_name"""
-    usercheck = db.conn.execute(sqlalchemy.text(usercheck), {'user_name': username}).fetchone()[0]
+    usercheck = db.conn.execute(sqlalchemy.text(usercheck),
+                                {'user_name': username}).fetchone()[0]
 
     if usercheck == 0:
         raise HTTPException(status_code=404, detail="username not found."
@@ -107,7 +109,8 @@ def add_recipe(username: str, recipe: RecipeJson):
         conn.execute(sqlalchemy.insert(db.instructions), instruction_values)
 
     for currentIngredient in recipe.ingredients:
-        upsert_ingredient(currentIngredient.ingredient_name, currentIngredient.core_ingredient)
+        upsert_ingredient(currentIngredient.ingredient_name,
+                          currentIngredient.core_ingredient)
         ingredient_id = db.conn.execute(
             sqlalchemy.text(
                 "SELECT ingredient_id FROM ingredients WHERE name = :name"

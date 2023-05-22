@@ -1,15 +1,7 @@
 import sqlalchemy
-from pydantic import BaseModel
-from sqlalchemy import func, String, literal
 from fastapi import APIRouter, HTTPException
 from enum import Enum
 from src import database as db
-from sqlalchemy import text
-from sqlalchemy import bindparam
-from sqlalchemy.dialects.postgresql import ARRAY
-import psycopg2
-from sqlalchemy.dialects.postgresql import array
-from typing import List
 
 router = APIRouter()
 
@@ -31,41 +23,43 @@ def get_recipe(id: int):
     """
 
     query = """WITH steps AS (
-  SELECT instructions.recipe_id, 
-         ARRAY_AGG(instructions.step_name) AS steps
-  FROM instructions
-  GROUP BY instructions.recipe_id
-),
-comments AS (
-  SELECT recipe_ratings.recipe_id, 
-         ARRAY_AGG(recipe_ratings.recipe_comment) AS comments
-  FROM recipe_ratings
-  GROUP BY recipe_ratings.recipe_id
-),
-ingre AS (
-  SELECT recipe_ingredients.recipe_id, 
-         ARRAY_AGG(ingredients.name) AS ingredients
-  FROM recipe_ingredients
-  JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-  GROUP BY recipe_ingredients.recipe_id
-),
-recipe_tags AS (
-  SELECT recipe_tags.recipe_id,
-         ARRAY_AGG(tags.tag) AS tags
-  FROM recipe_tags
-  JOIN tags ON recipe_tags.tag_id = tags.tag_id
-  GROUP BY recipe_tags.recipe_id
-)
-SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, recipe.total_time, recipe.servings, recipe.spice_level, recipe.cooking_level, recipe.recipe_type, steps, comments, ingredients, tags
-FROM recipes AS recipe
-JOIN steps ON steps.recipe_id = recipe.recipe_id
-LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
-JOIN ingre ON ingre.recipe_id = recipe.recipe_id
-LEFT JOIN recipe_tags ON recipe_tags.recipe_id = recipe.recipe_id
-WHERE recipe.recipe_id = :id;
-"""
-
-
+              SELECT instructions.recipe_id, 
+                     ARRAY_AGG(instructions.step_name) AS steps
+              FROM instructions
+              GROUP BY instructions.recipe_id),
+              
+            comments AS (
+              SELECT recipe_ratings.recipe_id, 
+                     ARRAY_AGG(recipe_ratings.recipe_comment) AS comments
+              FROM recipe_ratings
+              GROUP BY recipe_ratings.recipe_id),
+              
+            ingre AS (
+              SELECT recipe_ingredients.recipe_id, 
+                     ARRAY_AGG(ingredients.name) AS ingredients
+              FROM recipe_ingredients
+              JOIN ingredients ON 
+                    recipe_ingredients.ingredient_id = ingredients.ingredient_id
+              GROUP BY recipe_ingredients.recipe_id),
+              
+            recipe_tags AS (
+              SELECT recipe_tags.recipe_id,
+                     ARRAY_AGG(tags.tag) AS tags
+              FROM recipe_tags
+              JOIN tags ON recipe_tags.tag_id = tags.tag_id
+              GROUP BY recipe_tags.recipe_id)
+              
+            SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, 
+                    recipe.total_time, recipe.servings, recipe.spice_level, 
+                    recipe.cooking_level, recipe.recipe_type, steps, 
+                    comments, ingredients, tags
+            FROM recipes AS recipe
+            JOIN steps ON steps.recipe_id = recipe.recipe_id
+            LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
+            JOIN ingre ON ingre.recipe_id = recipe.recipe_id
+            LEFT JOIN recipe_tags ON recipe_tags.recipe_id = recipe.recipe_id
+            WHERE recipe.recipe_id = :id;
+            """
     result = db.conn.execute(sqlalchemy.text(query), {'id': id})
     json = []
     for row in result:
@@ -165,7 +159,6 @@ ORDER BY num_modified_ingredients DESC, recipe_id
     if json == []:
         raise HTTPException(status_code=404, detail="recipe not found.")
     return json
-
 
 
 

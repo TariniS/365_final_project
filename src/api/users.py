@@ -23,7 +23,8 @@ def add_user(user: UserJSON):
         raise HTTPException(status_code=404, detail="Invalid Name.")
 
     usercheck = """SELECT COUNT(*) FROM users WHERE username =:input_username"""
-    usercheck = db.conn.execute(sqlalchemy.text(usercheck), {'input_username': user.username})
+    usercheck = db.conn.execute(sqlalchemy.text(usercheck),
+                                {'input_username': user.username})
     if usercheck.fetchone()[0] > 0:
         raise HTTPException(status_code=404, detail="Username is taken. Try again")
 
@@ -32,7 +33,8 @@ def add_user(user: UserJSON):
             sqlalchemy.text(
                 """
                 INSERT INTO users (firstname, lastname, username, password)
-                VALUES (:firstname, :lastname, :username, crypt(:password, gen_salt('bf')))
+                VALUES (:firstname, :lastname, :username, 
+                crypt(:password, gen_salt('bf')))
                 RETURNING user_id;
                 """
             ),
