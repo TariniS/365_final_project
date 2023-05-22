@@ -84,7 +84,8 @@ def get_recipe(id: int):
 def get_recipes_by_ingredients(ingredient_list: str):
     """
     This endpoint allows a user to search for recipes based on ingredients
-    they have available to them.
+    they have available to them. Additionally, it automatically does substitutions
+    for the recipe instructions and ingredients based on a recipe's core ingredients.
     For each matched recipe, it returns:
     * `Recipe Name`: The name of the recipe.
     * `Recipe Id`: The internal id of the recipe.
