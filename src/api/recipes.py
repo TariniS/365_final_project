@@ -103,39 +103,95 @@ def get_recipes_by_ingredients(ingredient_list: str):
     ingredient_list2 = [ingredient.strip() for ingredient in ingredient_list2]
 
     query = """
-SELECT recipes.recipe_id, recipes.recipe_name,
-    ARRAY_AGG(
-        CASE WHEN ingredients.core_ingredient = ANY(:ingredient_list)
-
-             THEN ingredients.core_ingredient
-             ELSE ingredients.name
-        END
-    ) AS ingredients
-FROM recipes
-JOIN recipe_ingredients ON recipes.recipe_id = recipe_ingredients.recipe_id
-JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-WHERE recipes.recipe_id IN (
-    SELECT DISTINCT recipe_id
-    FROM recipe_ingredients
-    JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
-    WHERE ingredients.core_ingredient = ANY(:ingredient_list)
+WITH t1 AS (
+    SELECT
+        recipes.recipe_id,
+        recipes.recipe_name,
+        instructions.step_order AS step_order,
+        COUNT( CASE
+                WHEN ingredients.core_ingredient = ANY(:ingredient_list)
+                    THEN ingredients.name
+            END) AS num_modified_ingredients,
+        ARRAY_AGG(
+            CASE
+                WHEN ingredients.core_ingredient = ANY(:ingredient_list)
+                     THEN ingredients.core_ingredient
+                     ELSE ingredients.name
+            END
+        ) AS ingredients,
+        ARRAY_AGG(
+           DISTINCT CASE
+                WHEN ingredients.core_ingredient = ANY(:ingredient_list) AND POSITION(ingredients.name IN instructions.step_name) > 0
+                    THEN REPLACE(instructions.step_name, ingredients.name, ingredients.core_ingredient)
+                ELSE instructions.step_name
+            END
+        ) AS modified_instructions
+    FROM
+        recipes
+        JOIN recipe_ingredients ON recipes.recipe_id = recipe_ingredients.recipe_id
+        JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+        JOIN instructions ON instructions.recipe_id = recipe_ingredients.recipe_id
+    WHERE
+        recipes.recipe_id IN (
+            SELECT DISTINCT recipe_ingredients.recipe_id
+            FROM recipe_ingredients
+            JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+            WHERE ingredients.core_ingredient = ANY(:ingredient_list)
+        )
+    GROUP BY
+        recipes.recipe_id,
+        recipes.recipe_name,
+        instructions.step_order
 )
 
-GROUP BY recipes.recipe_id, recipes.recipe_name
+SELECT
+    t1.recipe_id,
+    t1.recipe_name,
+    t1.step_order,
+    t1.ingredients,
+    ARRAY_AGG(t1.modified_instructions) AS modified_instruction
+FROM
+    t1
+GROUP BY recipe_id, recipe_name, step_order, ingredients, t1.num_modified_ingredients
+ORDER BY t1.num_modified_ingredients DESC
 """
     result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list2})
-    count = 0
-    json=[]
+    recipe_list = []
+    recipe_data = None
+    current_recipe = None
 
     for row in result:
-        json.append({
-            "Recipe Name": row.recipe_name,
-            "Recipe Id": row.recipe_id,
-            "Ingredients": row.ingredients
-        })
-    if json == []:
-        raise HTTPException(status_code=404, detail="recipe not found.")
-    return json
+        recipe_id = row.recipe_id
+        recipe_name = row.recipe_name
+        step_order = row.step_order
+        ingredients = row.ingredients
+        instructions = row.modified_instruction[0]
+
+        if recipe_id != current_recipe:
+            # If a new recipe_id is encountered, create a new recipe object
+            current_recipe = recipe_id
+            recipe_data = {
+                'recipe_id': recipe_id,
+                'recipe_name': recipe_name,
+                'ingredients': ingredients,
+                'instructions': []
+            }
+            recipe_list.append(recipe_data)
+
+        # Append the instruction to the current recipe's instructions list
+        instruction = {
+            'step_order': step_order,
+            'instruction': instructions
+        }
+        recipe_data['instructions'].append(instruction)
+
+    print(recipe_list)
+
+    # json_result = recipe_list
+    #
+    # if json_result == []:
+    #     raise HTTPException(status_code=404, detail="recipe not found.")
+    # return json_result
 
 
 
