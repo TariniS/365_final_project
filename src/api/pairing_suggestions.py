@@ -51,6 +51,13 @@ def recipe_pairing_suggestions(recipe_id: int):
     * `Recipe_id`: The internal id of the pairing suggestion's recipe.
     * 'Recipe_name': The internal name of the pairing suggestion's recipe.
     """
+    idcheck = """SELECT COUNT(*) FROM recipes WHERE recipe_id =:recipe_id"""
+    idcheck = db.conn.execute(sqlalchemy.text(idcheck),
+                                {'recipe_id': recipe_id}).fetchone()[0]
+
+    if idcheck == 0:
+        raise HTTPException(status_code=404, detail="Recipe not found.")
+
 
     recipe_type = """SELECT recipes.recipe_type
                         FROM recipes
