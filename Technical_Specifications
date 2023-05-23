@@ -2,34 +2,39 @@ User stories/User requirements:
 
 - As a user, I want to be able to create a profile on the platform and add my personal information, such as my name, email.
 - As a user, I want to be able to upload a new recipe with the recipe name, ingredients, instructions.
-- As a user, I want to be able to search for recipes based on specific ingredients or cuisine types.
+- As a user, I want to be able to search for recipes based on specific ingredients
 - As a user, I want to be able to view a recipe and see its rating and comments from other users.
 - As a user, I want to be able to rate a recipe and leave comments.
 - As a user, I want to be able to filter a recipe by specific tags based on nutritional needs (gluten free, dairy free, vegan, etc)
 - As a user, I want to be able to sort for recipes based on the ratings their recieved
-- As a user, I want to be able to edit a recipe. 
 
 
 Endpoints:
 
 POST /users: 
-  - This endpoint allows a user to create a new profile on the platform using an emailId and password.
+  - This endpoint allows a user to create a new profile on the platform using an username and password.
   - Parameters: 
-    - name: string (required)
+    - firstname: string (required)
+    - lastname: string (required)
+    - username: string (required)
+    - password: string (required)
    
-POST /recipes: 
+POST /recipes/{username}/{password}/recipes/ : 
   - This endpoint allows a user to upload a new recipe to the platform. A user can have multiple different recipe versions for the same dish. 
   - Parameters:
-    - user_id: int (required)
+    - username: string (required)
+    - password: string (required)
     - recipeJSON: Class_BaseModel (required)
-   - RecipeJSON consists of recipe_name, total_time, servings, spice_level, cooking_level, recipe_description, ingredients, and instructions
-        where ingredients and instructions are another class consisting of attributes specific to them.
+   - RecipeJSON consists of recipe_name, total_time, servings, spice_level, cooking_level, recipe_type, ingredients, instructions, and tags
+        where ingredients and instructions are another class consisting of attributes specific to them, and tags is a list of strings
+   - where recipe_type must be string of type 'food', 'drink', or 'dessert'
+        
    
-GET /recipes: 
+GET /recipes/ : 
   - This endpoint returns a list of recipes. A user can further search for a recipe by specific tags (quick, vegan, dairy-free, etc), sort by
     total time, spice level, cooking level, and servings. It also has a limit and offset query used for pagination.
   - Parameters:
-    - tags: string (optional)
+    - tags: List[strings] (optional)
     - offset: 0
     - limit: 50
     - sort: sort.total_time, sort.spice_level, sort.cooking_level, sort.servings (optional)
@@ -37,8 +42,23 @@ GET /recipes:
 GET /findrecipes/{ingredient_list}:
   - This endpoint allows a user to find for recipes based on ingredients they have available on hand and returns
     the recipes in order of highest ingredient match
+  - This endpoint expects a list of core ingredients that one may have on hand. For example, 'bread', 'chocolate', and 
+    returns the recipes, in order of highest ingredient match back. The ingredients and instructions on the returned
+    recipe are further replaced with the ingredients that the user may have on hand.
+    Example: findrecies/?ingredient_list='chocolate' will turn an instruction like 'Put chocolate frosting over donut'
+    into 'Put chocolate over donut', which allows us to have personalized recipes for each user. 
   - Parameters:
     - ingredients: list of strings (required)
+    
+GET /recipes/{recipe_id}/pairings:
+  - This endpoint returns pairing suggestion(s) for a recipe based matching recipe_tags.
+    similarity. It orders the suggestions by type, and then by the recipe name.
+  - Parameters:
+    - recipe_id: int (required)
+  - This endpoint will return a List of maximum of 2 elements, of which recipe type are not the ones that were provided. 
+    For example, if a recipe_id pertains to a 'drink' recipe_type, the suggestions will return a 'food' and/or a 'dessert'.
+    This endpoint bases pairings solely off of similarities in tags, so if different recipes do not share similar tags, 
+    there will be no suggestions, as the tags are what the similarity is based off of. 
     
 GET /recipes/{id}: 
   - This endpoint allows a user to view a recipe based on an id and see the information pertaining to it (see docstring)
@@ -61,3 +81,7 @@ Detailed descriptions of edge cases and transaction flows:
 - If a user tries to rate a recipe without providing a rating value, the system should return an error message indicating that the rating value is required.
 - If a user tries to rate a recipe multiple times, the system should only update the rating for that recipe with the most recent rating provided by the user.
 - If a user tries to create a recipe but there is already an exisiting recipe with the same name in the database. 
+
+Callout Note:
+We have an ingredients table that is being upserted on the name of the ingredient. Therefore, if the same name of an ingredient is later provided,
+we assume that the core ingredient is going to stay the same. Please be mindful of this when posting recipes. 
