@@ -3,7 +3,6 @@ import sqlalchemy
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from src import database as db
-import bcrypt
 
 router = APIRouter()
 
@@ -72,18 +71,27 @@ def add_recipe(username: str, password: str, recipe: RecipeJson):
         raise HTTPException(status_code=404, detail="username not found."
                                                     "Please check or create a new user.")
 
-    stored_password = db.conn.execute(
-        sqlalchemy.text("SELECT password FROM users WHERE username = :username"),
+    user_info = db.conn.execute(
+        sqlalchemy.text("SELECT user_id, password FROM users WHERE username = :username"),
         {"username": username}
     ).fetchone()
 
+    stored_password = user_info[1]
+    password_match_query = """
+            SELECT crypt(:password, :stored_password) = :stored_password AS password_match;
+        """
+    password_match = db.conn.execute(
+        sqlalchemy.text(password_match_query),
+        {
+            "password": password,
+            "stored_password": stored_password,
+        }
+    ).fetchone()
 
-    if not bcrypt.checkpw(password.encode("utf-8"), stored_password[0].encode("utf-8")):
+    if not password_match[0]:
         raise HTTPException(status_code=401, detail="Invalid password. Access denied.")
 
-    user_id = """SELECT user_id FROM users WHERE username =:user_name"""
-    user_id = db.conn.execute(sqlalchemy.text(user_id),
-                              {'user_name': username}).fetchone()[0]
+    user_id = user_info[0]
 
     with db.engine.begin() as conn:
         conn.execute(
