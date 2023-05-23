@@ -156,5 +156,4 @@ def add_recipe(username: str, password: str, recipe: RecipeJson):
                     "tag": current_tag
                 },
             )
-
     return new_recipe_id
