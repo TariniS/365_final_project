@@ -52,7 +52,7 @@ def upsert_tags(tag_name: str):
         conn.execute(sqlalchemy.text(upsert_query), {'tag_name': tag_name})
 
 
-@router.post("/recipes/{username}/recipe/", tags=["recipes"])
+@router.post("/recipes/{username}/{password}/recipe/", tags=["recipes"])
 def add_recipe(username: str, password: str, recipe: RecipeJson):
     """
     This endpoint adds a recipe to Recipe. The recipe is represented

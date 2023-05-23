@@ -1,9 +1,1 @@
-[{"Recipe Name":"Grilled Cheese",
-  "Cooking Time":"10 mins",
-  "Servings":1,
-  "Spice Level":0,
-  "Cooking Level":1,
-  "Description":"quick vegetarian snack or meal",
-  "Ingredients":["cheddar cheese","sourdough bread","unsalted butter","oregano"],
-  "Steps":["Preheat a non-stick skillet or griddle over medium heat.","Butter one side of two slices of sourdough bread and place one slice, buttered-side down, in the skillet.","Place 1-2 slices of cheddar cheese on top of the bread in the skillet, and then top with the second slice of bread, buttered-side up.","Sprinkle 1 pinch of oregano on top of the bread.","Cook until the bread is golden brown and the cheese is melted, about 2-3 minutes per side.","Remove from the skillet and let cool for a minute before slicing and serving."],
-  "User Comments":["clear and concise, easy to follow!","wow, only 5 steps!","I wish this was a more unqiue recipe...but easy to follow.","Testing"]}]
+[{"Recipe Name":"Chocolate Donut","Cooking Time":"3 hours","Servings":12,"Spice Level":0,"Cooking Level":5,"Recipe Type":"dessert","Ingredients":["flour","chocolate frosting","rainbow sprinkles"],"Steps":["Make dough out of flour and water","Make dough into donut shape","Fry donut in oil","Put chocolate frosting on donut","Put rainbow sprinkles on donut"],"User Comments":["really great donut recipe!"],"Tags":["sweet","chocolate","baked"]}]
