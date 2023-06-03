@@ -11,14 +11,14 @@ from src import database as db
 router = APIRouter()
 
 class Rating(BaseModel):
-    username: str
+    password: str
     recipe_rating: int
     recipe_comment: str
     date: date
 
 
 @router.post("/recipes/{recipe_id}/rate/", tags=["recipes"])
-def add_rating(recipe_id: int, rating: Rating):
+def add_rating(recipe_id: int, username: str, rating: Rating):
     """
     This endpoint adds a rating to a Recipe. The rating is represented
     by a recipe rating, recipe comment, and the date when the rating was added.
@@ -29,15 +29,35 @@ def add_rating(recipe_id: int, rating: Rating):
     """
     usercheck = """SELECT COUNT(*) FROM users WHERE username =:user_name"""
     usercheck = db.conn.execute(sqlalchemy.text(usercheck),
-                                {'user_name': rating.username}).fetchone()[0]
+                                {'user_name': username}).fetchone()[0]
 
     if usercheck == 0:
         raise HTTPException(status_code=404, detail="username not found. "
                                                     "Please check or create new user.")
 
+    user_info = db.conn.execute(
+        sqlalchemy.text("SELECT user_id, password FROM users WHERE username = :username"),
+        {"username": username}
+    ).fetchone()
+
+    stored_password = user_info[1]
+    password_match_query = """
+               SELECT crypt(:password, :stored_password) = :stored_password AS password_match;
+           """
+    password_match = db.conn.execute(
+        sqlalchemy.text(password_match_query),
+        {
+            "password": rating.password,
+            "stored_password": stored_password,
+        }
+    ).fetchone()
+
+    if not password_match[0]:
+        raise HTTPException(status_code=401, detail="Invalid password. Access denied.")
+
     user_id = """SELECT user_id FROM users WHERE username =:user_name"""
     user_id = db.conn.execute(sqlalchemy.text(user_id),
-                              {'user_name': rating.username}).fetchone()[0]
+                              {'user_name': username}).fetchone()[0]
 
     with db.engine.begin() as conn:
         try:

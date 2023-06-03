@@ -18,6 +18,7 @@ class Instruction(BaseModel):
     step_name: str
 
 class RecipeJson(BaseModel):
+    password: str
     recipe_name: str
     total_time: str
     servings: int
@@ -53,7 +54,7 @@ def upsert_tags(tag_name: str):
 
 
 @router.post("/recipes/{username}/{password}/recipe/", tags=["recipes"])
-def add_recipe(username: str, password: str, recipe: RecipeJson):
+def add_recipe(username: str, recipe: RecipeJson):
     """
     This endpoint adds a recipe to Recipe. The recipe is represented
     by a recipe name, total time, servings, spice level, cooking level
@@ -83,7 +84,7 @@ def add_recipe(username: str, password: str, recipe: RecipeJson):
     password_match = db.conn.execute(
         sqlalchemy.text(password_match_query),
         {
-            "password": password,
+            "password": recipe.password,
             "stored_password": stored_password,
         }
     ).fetchone()
