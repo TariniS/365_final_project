@@ -65,7 +65,7 @@ def add_rating(recipe_id: int, username: str, rating: Rating):
 
     if recipecheck == 0:
         raise HTTPException(status_code=404, detail="Recipe not found. "
-                                                    "Please check.")
+                                                    "Please check or make new recipe.")
 
     with db.engine.begin() as conn:
         try:
