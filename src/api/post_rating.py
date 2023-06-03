@@ -59,6 +59,14 @@ def add_rating(recipe_id: int, username: str, rating: Rating):
     user_id = db.conn.execute(sqlalchemy.text(user_id),
                               {'user_name': username}).fetchone()[0]
 
+    recipecheck = """SELECT COUNT(*) FROM recipes WHERE recipe_id =:recipe_id"""
+    recipecheck = db.conn.execute(sqlalchemy.text(recipecheck),
+                                {'recipe_id': recipe_id}).fetchone()[0]
+
+    if recipecheck == 0:
+        raise HTTPException(status_code=404, detail="Recipe not found. "
+                                                    "Please check.")
+
     with db.engine.begin() as conn:
         try:
             conn.execute(
