@@ -94,9 +94,26 @@ def add_recipe(username: str, recipe: RecipeJson):
 
     user_id = user_info[0]
 
+    # with db.engine.begin() as conn:
+    #     conn.execute(
+    #         sqlalchemy.insert(db.recipes),
+    #         [
+    #             {
+    #                 "recipe_name": recipe.recipe_name,
+    #                 "user_id": user_id,
+    #                 "total_time": recipe.total_time,
+    #                 "servings": recipe.servings,
+    #                 "spice_level": recipe.spice_level,
+    #                 "cooking_level": recipe.cooking_level,
+    #                 "recipe_type": recipe.recipe_type
+    #             }
+    #         ]
+    #     )
+
     with db.engine.begin() as conn:
-        conn.execute(
-            sqlalchemy.insert(db.recipes),
+        result = conn.execute(
+            sqlalchemy.insert(db.recipes)
+            .returning(db.recipes.c.recipe_id),  # Add returning clause
             [
                 {
                     "recipe_name": recipe.recipe_name,
@@ -109,11 +126,12 @@ def add_recipe(username: str, recipe: RecipeJson):
                 }
             ]
         )
+        new_recipe_id = result.fetchone()[0]
 
-    new_recipe_id = db.conn.execute(
-        sqlalchemy.text(
-            """SELECT recipe_id FROM recipes 
-            ORDER BY recipe_id DESC LIMIT 1;""")).fetchone()[0]
+    # new_recipe_id = db.conn.execute(
+    #     sqlalchemy.text(
+    #         """SELECT recipe_id FROM recipes
+    #         ORDER BY recipe_id DESC LIMIT 1;""")).fetchone()[0]
 
     instruction_values = [
         {

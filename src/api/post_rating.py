@@ -69,8 +69,8 @@ def add_rating(recipe_id: int, username: str, rating: Rating):
 
     with db.engine.begin() as conn:
         try:
-            conn.execute(
-                sqlalchemy.insert(db.recipe_rating),
+            result = conn.execute(
+                sqlalchemy.insert(db.recipe_rating).returning(db.recipe_rating.c.rating_id),
                 [
                     {
                         "user_id": user_id,
@@ -88,9 +88,10 @@ def add_rating(recipe_id: int, username: str, rating: Rating):
             elif 'recipe_rating_user_id_fkey' in error_msg:
                 raise HTTPException(status_code=404, detail="Invalid user_id.")
 
-    new_rating_id = db.conn.execute(
-        sqlalchemy.text(
-            """SELECT rating_id FROM recipe_ratings
-            ORDER BY rating_id DESC LIMIT 1;""")).fetchone()[0]
+    # new_rating_id = db.conn.execute(
+    #     sqlalchemy.text(
+    #         """SELECT rating_id FROM recipe_ratings
+    #         ORDER BY rating_id DESC LIMIT 1;""")).fetchone()[0]
+    new_rating_id = result.fetchone()[0]
 
     return new_rating_id
