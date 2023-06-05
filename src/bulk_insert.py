@@ -6,6 +6,11 @@ from sqlalchemy import Column, Integer, String, Float, Date, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+#############################################################################
+# Bulk_Insert Script
+# BEFORE RUNNING MAKE SURE YOU ARE CONNECTED TO YOUR LOCAL DB
+#############################################################################
+
 # Generate random recipe names
 def generate_recipe_name():
     words = ["Apple", "Banana", "Chocolate", "Egg", "Fish", "Ginger", "Honey", "Ice Cream", "Jam", "Cream"]
@@ -48,7 +53,7 @@ def generate_core_ingredient():
 def generate_ingredient_name():
     flavor = ["Caramel", "Peanut", "Sourdough", "Lemon", "Tomato", "Sugar", "Ginger"]
     ingredients = ["Salt", "Sugar", "Flour", "Butter", "Milk", "Eggs", "Tomatoes", "Onions", "Garlic", "Pepper"]
-    return random.choice(flavor) + random.choice(ingredients)
+    return random.choice(flavor) + " " + random.choice(ingredients)
 
 # Generate random measurement
 def generate_measurement():
@@ -59,10 +64,6 @@ def generate_measurement():
 def generate_recipe_comment():
     comments = ["Great recipe!", "Delicious!", "Easy to make", "Tasty!", "Highly recommended"]
     return random.choice(comments)
-
-# Generate Random Id (0 to 1 million inclusive)
-def generate_id():
-    return random.randint(0,1000000)
 
 # Generate random timestamps
 def generate_timestamp():
@@ -96,24 +97,25 @@ def generate_password(len):
 
 # Generate 1 million recipes
 def generate_recipe_entries():
-    entries = []
-    for i in range(1, 1000001):
+    recipe_entries = []
+    for i in range(0, 1000000):
         entry = {
             "recipe_id": i,
             "recipe_name": generate_recipe_name(),
-            "user_id": generate_id(),
+            "user_id": random.randint(0,1000000),
             "total_time": generate_total_time(),
             "servings": generate_servings(),
             "spice_level": generate_spice_level(),
             "cooking_level": generate_cooking_level(),
             "recipe_type": generate_recipe_type()
         }
-        entries.append(entry)
-    return entries
+        recipe_entries.append(entry)
+        print(entry)
+    return recipe_entries
 
 # Generate 1 million instructions
 def generate_instruction_entries():
-    entries = []
+    instruction_entries = []
     for i in range(0, 1000000):
         entry = {
             "instruction_id": i,
@@ -121,24 +123,24 @@ def generate_instruction_entries():
             "step_order": random.randint(1, 99),
             "step_name": generate_step_name()
         }
-        entries.append(entry)
-    return entries
+        instruction_entries.append(entry)
+    return instruction_entries
 
 # Generate 1 million ingredients
 def generate_ingredient_entries():
-    entries = []
+    ingredient_entries = []
     for i in range(0, 1000000):
         entry = {
             "ingredient_id": i,
             "ingredient_name": generate_ingredient_name(),
             "core_ingredient": generate_core_ingredient()
         }
-        entries.append(entry)
-    return entries
+        ingredient_entries.append(entry)
+    return ingredient_entries
 
 # Generate 1 million recipe ingredients
 def generate_recipe_ingredient_entries():
-    entries = []
+    r_i_entries = []
     for i in range(0, 1000000):
         entry = {
             "recipe_id": i,
@@ -146,49 +148,49 @@ def generate_recipe_ingredient_entries():
             "quantity": random.randint(1, 99),
             "measurement": generate_measurement()
         }
-        entries.append(entry)
-    return entries
+        r_i_entries.append(entry)
+    return r_i_entries
 
 # Generate 1 million recipe ratings
 def generate_recipe_rating_entries():
-    entries = []
+    r_r_entries = []
     for i in range(0, 1000000):
         entry = {
             "rating_id": i,
             "recipe_id": random.randint(0, 1000000),
             "user_id": random.randint(0, 1000000),
-            "recipe_rating": random.randint(0, 1000000),
+            "recipe_rating": random.randint(0, 10),
             "recipe_comment": generate_recipe_comment(),
             "time_stamp": generate_timestamp()
         }
-        entries.append(entry)
-    return entries
+        r_r_entries.append(entry)
+    return r_r_entries
 
 # Generate 1 million recipe_tags
 def generate_recipe_tag_entries():
-    entries = []
+    r_t_entries = []
     for i in range(0, 1000000):
         entry = {
             "tag_id": i,
             "recipe_id": random.randint(0, 1000000),
             "tag": generate_tag()
         }
-        entries.append(entry)
-    return entries
+        r_t_entries.append(entry)
+    return r_t_entries
 
 # Generate 1 million users
 def generate_user_entries():
-    entries = []
-    for i in range(0, 1001):
+    user_entries = []
+    for i in range(0, 1000000):
         entry = {
             "user_id": i,
             "firstname": generate_user_firstname(),
             "lastname": generate_user_lastname(),
             "username": generate_username(),
-            "password": generate_password()
+            "password": generate_password(random.randint(8,16))
         }
-        entries.append(entry)
-    return entries
+        user_entries.append(entry)
+    return user_entries
 
 # Create a session
 Session = sessionmaker(bind=db.engine)
@@ -267,15 +269,25 @@ class User(Base):
 
 # Perform bulk insert
 session.bulk_insert_mappings(Recipe, recipe_entries)
-session.bulk_insert_mappings(Instruction, instruction_entries)
-session.bulk_insert_mappings(Ingredient, ingredient_entries)
-session.bulk_insert_mappings(Recipe_Ingredient, recipe_ingredient_entries)
-session.bulk_insert_mappings(Recipe_Rating, recipe_rating_entries)
-session.bulk_insert_mappings(Recipe_Tag, recipe_tag_entries)
-session.bulk_insert_mappings(User, user_entries)
+print(".")
 
-# Commit the transaction
-session.commit()
+session.bulk_insert_mappings(Instruction, instruction_entries)
+print(".")
+
+session.bulk_insert_mappings(Ingredient, ingredient_entries)
+print(".")
+
+session.bulk_insert_mappings(Recipe_Ingredient, recipe_ingredient_entries)
+print(".")
+
+session.bulk_insert_mappings(Recipe_Rating, recipe_rating_entries)
+print(".")
+
+session.bulk_insert_mappings(Recipe_Tag, recipe_tag_entries)
+print(".")
+
+session.bulk_insert_mappings(User, user_entries)
+print(". committing...")
 
 # Close the session
 session.close()
