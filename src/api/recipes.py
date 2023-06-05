@@ -23,11 +23,11 @@ def get_recipe(id: int):
     """
 
     query = """WITH steps AS (
-              SELECT instructions.recipe_id, 
-                     ARRAY_AGG(instructions.step_name) AS steps
-              FROM instructions
-              GROUP BY instructions.recipe_id),
-              
+  SELECT instructions.recipe_id,
+         ARRAY_AGG(CONCAT(instructions.step_order, '. ', instructions.step_name) ORDER BY instructions.step_order) AS steps_with_order
+  FROM instructions
+  GROUP BY instructions.recipe_id
+),
             comments AS (
               SELECT recipe_ratings.recipe_id, 
                      ARRAY_AGG(recipe_ratings.recipe_comment) AS comments
@@ -51,14 +51,14 @@ def get_recipe(id: int):
               
             SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, 
                     recipe.total_time, recipe.servings, recipe.spice_level, 
-                    recipe.cooking_level, recipe.recipe_type, steps, 
+                    recipe.cooking_level, recipe.recipe_type, steps.steps_with_order AS steps, 
                     comments, ingredients, tags
             FROM recipes AS recipe
             JOIN steps ON steps.recipe_id = recipe.recipe_id
             LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
             JOIN ingre ON ingre.recipe_id = recipe.recipe_id
             LEFT JOIN recipe_tags ON recipe_tags.recipe_id = recipe.recipe_id
-            WHERE recipe.recipe_id = :id;
+            WHERE recipe.recipe_id =:id
             """
     result = db.conn.execute(sqlalchemy.text(query), {'id': id})
     json = []
