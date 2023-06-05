@@ -42,11 +42,26 @@ def add_step(recipe_id: int, step_order: int, new_step_name: str):
         raise HTTPException(status_code=404, detail="Invalid step order")
 
     with db.engine.begin() as conn:
-        decrement_query = """
-            UPDATE instructions SET step_order = step_order + 1
-            WHERE recipe_id = :recipe_id AND step_order > :step_order
+        order_query = """
+            SELECT step_order FROM instructions
+            WHERE recipe_id = :recipe_id
+            ORDER BY step_order DESC
         """
-        conn.execute(sqlalchemy.text(decrement_query), {'recipe_id': recipe_id, 'step_order': step_order})
+        order_result = conn.execute(sqlalchemy.text(order_query), {'recipe_id': recipe_id})
+        step_orders = [row[0] for row in order_result]
+
+        for old_step_order in step_orders:
+            if old_step_order >= step_order:
+                new_step_order = old_step_order + 1
+
+                update_query = """
+                    UPDATE instructions SET step_order = :new_step_order
+                    WHERE recipe_id = :recipe_id AND step_order = :old_step_order
+                """
+                conn.execute(
+                    sqlalchemy.text(update_query),
+                    {'new_step_order': new_step_order, 'recipe_id': recipe_id, 'old_step_order': old_step_order}
+                )
 
         insert_query = """
             INSERT INTO instructions (recipe_id, step_order, step_name)
