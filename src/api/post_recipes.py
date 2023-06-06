@@ -18,6 +18,7 @@ class Instruction(BaseModel):
     step_name: str
 
 class RecipeJson(BaseModel):
+    password: str
     recipe_name: str
     total_time: str
     servings: int
@@ -53,7 +54,7 @@ def upsert_tags(tag_name: str):
 
 
 @router.post("/recipes/{username}/{password}/recipe/", tags=["recipes"])
-def add_recipe(username: str, password: str, recipe: RecipeJson):
+def add_recipe(username: str, recipe: RecipeJson):
     """
     This endpoint adds a recipe to Recipe. The recipe is represented
     by a recipe name, total time, servings, spice level, cooking level
@@ -83,7 +84,7 @@ def add_recipe(username: str, password: str, recipe: RecipeJson):
     password_match = db.conn.execute(
         sqlalchemy.text(password_match_query),
         {
-            "password": password,
+            "password": recipe.password,
             "stored_password": stored_password,
         }
     ).fetchone()
@@ -93,9 +94,26 @@ def add_recipe(username: str, password: str, recipe: RecipeJson):
 
     user_id = user_info[0]
 
+    # with db.engine.begin() as conn:
+    #     conn.execute(
+    #         sqlalchemy.insert(db.recipes),
+    #         [
+    #             {
+    #                 "recipe_name": recipe.recipe_name,
+    #                 "user_id": user_id,
+    #                 "total_time": recipe.total_time,
+    #                 "servings": recipe.servings,
+    #                 "spice_level": recipe.spice_level,
+    #                 "cooking_level": recipe.cooking_level,
+    #                 "recipe_type": recipe.recipe_type
+    #             }
+    #         ]
+    #     )
+
     with db.engine.begin() as conn:
-        conn.execute(
-            sqlalchemy.insert(db.recipes),
+        result = conn.execute(
+            sqlalchemy.insert(db.recipes)
+            .returning(db.recipes.c.recipe_id),  # Add returning clause
             [
                 {
                     "recipe_name": recipe.recipe_name,
@@ -108,11 +126,12 @@ def add_recipe(username: str, password: str, recipe: RecipeJson):
                 }
             ]
         )
+        new_recipe_id = result.fetchone()[0]
 
-    new_recipe_id = db.conn.execute(
-        sqlalchemy.text(
-            """SELECT recipe_id FROM recipes 
-            ORDER BY recipe_id DESC LIMIT 1;""")).fetchone()[0]
+    # new_recipe_id = db.conn.execute(
+    #     sqlalchemy.text(
+    #         """SELECT recipe_id FROM recipes
+    #         ORDER BY recipe_id DESC LIMIT 1;""")).fetchone()[0]
 
     instruction_values = [
         {
