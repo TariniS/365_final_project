@@ -280,6 +280,7 @@ class User(Base):
     username = Column(String)
     password = Column(String)
 
+print("Grab a snack. This could take a while...")
 # Perform bulk insert
 session.bulk_insert_mappings(User, user_entries)
 print(".")
