@@ -1,11 +1,11 @@
 # RECIPE_API
 
 Contributors: 
-Sameera Balijepalli & Tarini Srikanth
+Sameera Balijepalli, Tarini Srikanth & Dillon Rego
 
 
 Emails: 
-sbalijep@calpoly.edu & tgsrikan@calpoly.edu
+sbalijep@calpoly.edu, tgsrikan@calpoly.edu, & drego@calpoly.edu
 
 
 Description:
