@@ -303,7 +303,7 @@ session.bulk_insert_mappings(Tag, tag_entries)
 print(".")
 
 session.bulk_insert_mappings(Recipe_Tag, recipe_tag_entries)
-
+session.commit()
 print(". committing...")
 
 # Close the session
