@@ -19,9 +19,9 @@ class Rating(BaseModel):
 @router.put("/recipes/{recipe_id}/rate/", tags=["recipes"])
 def update_rating(recipe_id: int, rating: Rating):
     """
-    This endpoint updates a rating provided using the rating_id argument. 
+    This endpoint updates a rating provided using the rating_id argument.
     The rating is represented by a recipe rating, recipe comment, and the
-    date when the rating was added. It also takes in a user_id and 
+    date when the rating was added. It also takes in a user_id and
     recipe_id to ensure that the rating is added by the specific user and
       to the desired recipe they would like to rate.
 
@@ -38,6 +38,19 @@ def update_rating(recipe_id: int, rating: Rating):
     user_id = """SELECT user_id FROM users WHERE username =:user_name"""
     user_id = db.conn.execute(sqlalchemy.text(user_id),
                               {'user_name': rating.username}).fetchone()[0]
+
+    existing_rating_query = """
+            SELECT rating_id
+            FROM recipe_ratings
+            WHERE recipe_id = :recipe_id AND user_id = :user_id
+        """
+    existing_rating_result = db.conn.execute(
+        sqlalchemy.text(existing_rating_query),
+        {"recipe_id": recipe_id, "user_id": user_id}
+    ).fetchone()
+
+    if not existing_rating_result:
+        raise HTTPException(status_code=404, detail="No existing rating found. Please create a new rating.")
 
     with db.engine.begin() as conn:
         try:
