@@ -71,6 +71,26 @@ POST /recipes/{id}/rating:
     - id: string (required)
     - rating: float (required)
     - comment: string (optional)
+    
+PUT /recipes/editStep/
+  - This endpoint allows a user to edit a step of a recipe and instructions. 
+  - Parameters:
+    - recipe_id : int (required)
+    - step_order: int(required)
+    - new_step_name : str (required)
+PUT /recipes/addStep/
+  - This endpoint allows a user to add a step of a recipe to the instructions
+  - Paramters: 
+    - recipe_id : int (required)
+    - step_order: int(required)
+    - new_step_name : str(required)
+
+PUT /recipes/recipe_id/rate/
+  - This endpoint allows as user to edit an existing rating, including comments, date, and rating
+  -Paramters: 
+    - recipe_id : int(required)
+    - rating : json object 
+                - username, recipe_rating, recipe_comment, date
 
 
 Detailed descriptions of edge cases and transaction flows:
