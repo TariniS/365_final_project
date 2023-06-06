@@ -20,6 +20,7 @@ def get_recipe(id: int):
     * 'Ingredients': list of all ingredients needed for recipe
     * 'Steps': list of instructions for recipe in order
     * 'User Comments': list of comments left by other users for recipe
+    * 'Avg Rating': average rating for the recipe
     """
 
     query = """WITH steps AS (
@@ -47,16 +48,22 @@ def get_recipe(id: int):
                      ARRAY_AGG(tags.tag) AS tags
               FROM recipe_tags
               JOIN tags ON recipe_tags.tag_id = tags.tag_id
-              GROUP BY recipe_tags.recipe_id)
+              GROUP BY recipe_tags.recipe_id),
+            
+            average_rating AS (
+              SELECT recipe_id, AVG(recipe_rating) AS avg_rating
+              FROM recipe_ratings
+              GROUP BY recipe_id)
               
             SELECT recipe.recipe_id, recipe.recipe_name, recipe.user_id, 
                     recipe.total_time, recipe.servings, recipe.spice_level, 
                     recipe.cooking_level, recipe.recipe_type, steps.steps_with_order AS steps, 
-                    comments, ingredients, tags
+                    comments, ingredients, average_rating.avg_rating, tags
             FROM recipes AS recipe
             JOIN steps ON steps.recipe_id = recipe.recipe_id
             LEFT JOIN comments ON comments.recipe_id = recipe.recipe_id
             JOIN ingre ON ingre.recipe_id = recipe.recipe_id
+            LEFT JOIN average_rating ON average_rating.recipe_id = recipe.recipe_id
             LEFT JOIN recipe_tags ON recipe_tags.recipe_id = recipe.recipe_id
             WHERE recipe.recipe_id =:id
             """
@@ -73,6 +80,7 @@ def get_recipe(id: int):
             "Ingredients": row.ingredients,
             "Steps": row.steps,
             "User Comments": row.comments,
+            "Avg Rating": row.avg_rating,
             "Tags": row.tags
         })
     if json == []:
