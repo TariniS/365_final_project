@@ -9,6 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 #############################################################################
 # Bulk_Insert Script
 # BEFORE RUNNING MAKE SURE YOU ARE CONNECTED TO YOUR LOCAL DB
+# AND THAT THE LOCAL DB IS COMPLETELY EMPTY
 #############################################################################
 
 # Generate random recipe names
@@ -46,14 +47,14 @@ def generate_step_name():
 
 # Generate random core ingredient names
 def generate_core_ingredient():
-    ingredients = ["Salt", "Sugar", "Flour", "Butter", "Milk", "Eggs", "Tomatoes", "Onions", "Garlic", "Pepper"]
-    return random.choice(ingredients)
+    names = ["Salt", "Sugar", "Flour", "Butter", "Milk", "Eggs", "Tomatoes", "Onions", "Garlic", "Pepper"]
+    return random.choice(names)
 
 # Generate random flavor + ingredient combinations
-def generate_ingredient_name():
+def generate_ingredient_name(num):
     flavor = ["Caramel", "Peanut", "Sourdough", "Lemon", "Tomato", "Sugar", "Ginger"]
     ingredients = ["Salt", "Sugar", "Flour", "Butter", "Milk", "Eggs", "Tomatoes", "Onions", "Garlic", "Pepper"]
-    return random.choice(flavor) + " " + random.choice(ingredients)
+    return random.choice(flavor) + " " + random.choice(ingredients) + " " + str(num)
 
 # Generate random measurement
 def generate_measurement():
@@ -73,9 +74,9 @@ def generate_timestamp():
     return random_date
 
 # Generate random tag for the dish
-def generate_tag():
+def generate_tag(num):
     tags = ["String", "nuts", "sweet", "chocolate", "baked", "coffee", "iced", "fish"]
-    return random.choice(tags)
+    return random.choice(tags) + str(num)
 
 # Generate random user first names
 def generate_user_firstname():
@@ -102,7 +103,7 @@ def generate_recipe_entries():
         entry = {
             "recipe_id": i,
             "recipe_name": generate_recipe_name(),
-            "user_id": random.randint(0,1000000),
+            "user_id": 0,
             "total_time": generate_total_time(),
             "servings": generate_servings(),
             "spice_level": generate_spice_level(),
@@ -110,7 +111,6 @@ def generate_recipe_entries():
             "recipe_type": generate_recipe_type()
         }
         recipe_entries.append(entry)
-        print(entry)
     return recipe_entries
 
 # Generate 1 million instructions
@@ -119,7 +119,7 @@ def generate_instruction_entries():
     for i in range(0, 1000000):
         entry = {
             "instruction_id": i,
-            "recipe_id": random.randint(0, 1000000),
+            "recipe_id": 0,
             "step_order": random.randint(1, 99),
             "step_name": generate_step_name()
         }
@@ -132,7 +132,7 @@ def generate_ingredient_entries():
     for i in range(0, 1000000):
         entry = {
             "ingredient_id": i,
-            "ingredient_name": generate_ingredient_name(),
+            "name": generate_ingredient_name(i),
             "core_ingredient": generate_core_ingredient()
         }
         ingredient_entries.append(entry)
@@ -144,7 +144,7 @@ def generate_recipe_ingredient_entries():
     for i in range(0, 1000000):
         entry = {
             "recipe_id": i,
-            "ingredient_id": random.randint(0, 1000000),
+            "ingredient_id": 0,
             "quantity": random.randint(1, 99),
             "measurement": generate_measurement()
         }
@@ -157,8 +157,8 @@ def generate_recipe_rating_entries():
     for i in range(0, 1000000):
         entry = {
             "rating_id": i,
-            "recipe_id": random.randint(0, 1000000),
-            "user_id": random.randint(0, 1000000),
+            "recipe_id": 0,
+            "user_id": 0,
             "recipe_rating": random.randint(0, 10),
             "recipe_comment": generate_recipe_comment(),
             "time_stamp": generate_timestamp()
@@ -166,14 +166,25 @@ def generate_recipe_rating_entries():
         r_r_entries.append(entry)
     return r_r_entries
 
+# Generate 1 million tags
+def generate_tag_entries():
+    t_entries = []
+    for i in range(0, 1000000):
+        entry = {
+            "tag_id": i,
+            "tag": generate_tag(i)
+        }
+        t_entries.append(entry)
+    return t_entries
+
 # Generate 1 million recipe_tags
-def generate_recipe_tag_entries():
+def generate_recipe_tag_entries(tag_entries):
     r_t_entries = []
     for i in range(0, 1000000):
         entry = {
             "tag_id": i,
-            "recipe_id": random.randint(0, 1000000),
-            "tag": generate_tag()
+            "recipe_id": random.randint(0, 999999),
+            "tag": generate_tag(i)
         }
         r_t_entries.append(entry)
     return r_t_entries
@@ -202,7 +213,8 @@ instruction_entries = generate_instruction_entries()
 ingredient_entries = generate_ingredient_entries()
 recipe_ingredient_entries = generate_recipe_ingredient_entries()
 recipe_rating_entries = generate_recipe_rating_entries()
-recipe_tag_entries = generate_recipe_tag_entries()
+tag_entries = generate_tag_entries()
+recipe_tag_entries = generate_recipe_tag_entries(tag_entries)
 user_entries = generate_user_entries()
 
 Base = declarative_base()
@@ -268,6 +280,9 @@ class User(Base):
     password = Column(String)
 
 # Perform bulk insert
+session.bulk_insert_mappings(User, user_entries)
+print(".")
+
 session.bulk_insert_mappings(Recipe, recipe_entries)
 print(".")
 
@@ -283,10 +298,11 @@ print(".")
 session.bulk_insert_mappings(Recipe_Rating, recipe_rating_entries)
 print(".")
 
-session.bulk_insert_mappings(Recipe_Tag, recipe_tag_entries)
+session.bulk_insert_mappings(Tag, tag_entries)
 print(".")
 
-session.bulk_insert_mappings(User, user_entries)
+session.bulk_insert_mappings(Recipe_Tag, recipe_tag_entries)
+
 print(". committing...")
 
 # Close the session
