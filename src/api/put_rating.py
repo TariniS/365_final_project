@@ -17,7 +17,7 @@ class Rating(BaseModel):
     date: date
 
 @router.put("/recipes/{recipe_id}/rate/", tags=["recipes"])
-def update_rating(rating_id: int, recipe_id: int, rating: Rating):
+def update_rating(recipe_id: int, rating: Rating):
     """
     This endpoint updates a rating provided using the rating_id argument. 
     The rating is represented by a recipe rating, recipe comment, and the
