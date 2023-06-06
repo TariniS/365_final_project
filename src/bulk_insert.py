@@ -10,6 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 # Bulk_Insert Script
 # BEFORE RUNNING MAKE SURE YOU ARE CONNECTED TO YOUR LOCAL DB
 # AND THAT THE LOCAL DB IS COMPLETELY EMPTY
+# Run using: python ./src/bulk_insert.py
 #############################################################################
 
 # Generate random recipe names
