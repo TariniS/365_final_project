@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.api import recipes, users, pkg_util, post_recipes, post_rating, pairing_suggestions, edit_steps
+from src.api import recipes, users, pkg_util, post_recipes, post_rating, pairing_suggestions, edit_steps, put_rating
 description = """
 Add description about recipes API
 """
@@ -31,6 +31,7 @@ app.include_router(post_rating.router)
 app.include_router(pairing_suggestions.router)
 app.include_router(pkg_util.router)
 app.include_router(edit_steps.router)
+app.include_router(put_rating.router)
 
 
 @app.get("/")
