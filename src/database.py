@@ -58,7 +58,7 @@ recipe_ingredients = sqlalchemy.Table(
     sqlalchemy.Column("quantity", sqlalchemy.Float),
     sqlalchemy.Column("measurements", sqlalchemy.String))
 
-recipe_ratings = sqlalchemy.Table(
+recipe_rating= sqlalchemy.Table(
     "recipe_ratings",
     metadata_obj,
     sqlalchemy.Column("rating_id", sqlalchemy.Integer, primary_key=True),
