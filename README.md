@@ -25,7 +25,7 @@
 
 [![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/TariniS/recipe_api/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![code with love by Tarini Srikantho](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-TariniS-A020F0.svg?style=flat-square)](https://github.com/TariniS)
-[![Sameera Balijepalli](https://img.shields.io/badge/-samerabali5-0000ff.svg?style=flat-square)](https://github.com/sameerabali5)
+[![Sameera Balijepalli](https://img.shields.io/badge/-SameraBali5-0000ff.svg?style=flat-square)](https://github.com/sameerabali5)
 [![Dillon Rego](https://img.shields.io/badge/-DillonRego-148513.svg?style=flat-square)](https://github.com/DillonRego)
 
 </div>
@@ -117,12 +117,10 @@ If you want to say **thank you** or/and support active development of Recipe API
 
 Together, we can make Recipe API **better**!
 
-
 ## Authors & contributors
 
-The original setup of this repository is by [TariniS](https://github.com/TariniS).
+The original setup of this repository is by [TariniS](https://github.com/TariniS) and [Sameerabali5](https://github.com/sameerabali5) .
 This README was created by [Dillon Rego](https://github.com/DillonRego).
-
 
 For a full list of all authors and contributors, see [the contributors page](https://github.com/TariniS/recipe_ap/contributors).
 
