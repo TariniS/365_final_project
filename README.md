@@ -119,7 +119,7 @@ Together, we can make Recipe API **better**!
 
 ## Authors & contributors
 
-The original setup of this repository is by [TariniS](https://github.com/TariniS) and [Sameerabali5](https://github.com/sameerabali5) .
+The original setup of this repository is by [TariniS](https://github.com/TariniS) and [Sameerabali5](https://github.com/sameerabali5).
 This README was created by [Dillon Rego](https://github.com/DillonRego).
 
 For a full list of all authors and contributors, see [the contributors page](https://github.com/TariniS/recipe_ap/contributors).
@@ -131,6 +131,4 @@ Recipe API is provided **"as is"** without any **warranty**. Use at your own ris
 
 ## Acknowledgements
 
-> **[?]**
-> If your work was funded by any organization or institution, acknowledge their support here.
-> In addition, if your work relies on other software libraries, or was inspired by looking at other work, it is appropriate to acknowledge this intellectual debt too.
+Thank you to Lucas Pierce for help throughout development
