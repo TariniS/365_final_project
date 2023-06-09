@@ -24,7 +24,7 @@
 [![Project license](https://img.shields.io/github/license/TariniS/recipe_api.svg?style=flat-square)](LICENSE)
 
 [![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/TariniS/recipe_api/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-[![code with love by Sameera Balijepalli, Tarini Srikanth & Dillon Rego](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)][(https://github.com/DillonRego)(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)(https://github.com/DillonRego)][(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)(https://github.com/DillonRego)]
+[![code with love by Dillon Rego](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)][![Tarini Srikanth](https://github.com/DillonRego)(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)(https://github.com/DillonRego)][![Sameera Balijepalli](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)(https://github.com/DillonRego)]
 
 </div>
 
@@ -131,6 +131,8 @@ Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you f
 ## Authors & contributors
 
 The original setup of this repository is by [Dillon Rego](https://github.com/DillonRego).
+This README was created by [Dillon Rego](https://github.com/DillonRego).
+
 
 For a full list of all authors and contributors, see [the contributors page](https://github.com/TariniS/recipe_ap/contributors).
 
