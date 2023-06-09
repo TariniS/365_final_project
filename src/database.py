@@ -58,15 +58,15 @@ recipe_ingredients = sqlalchemy.Table(
     sqlalchemy.Column("quantity", sqlalchemy.Float),
     sqlalchemy.Column("measurements", sqlalchemy.String))
 
-# recipe_ratings = sqlalchemy.Table(
-#     "recipe_ratings",
-#     metadata_obj,
-#     sqlalchemy.Column("rating_id", sqlalchemy.Integer, primary_key=True),
-#     sqlalchemy.Column("recipe_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("recipes.recipe_id")),
-#     sqlalchemy.Column("user_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.user_id")),
-#     sqlalchemy.Column("recipe_rating", sqlalchemy.Float),
-#     sqlalchemy.Column("recipe_comment", sqlalchemy.String),
-#     sqlalchemy.Column("time_stamp", sqlalchemy.DateTime))
+recipe_ratings = sqlalchemy.Table(
+    "recipe_ratings",
+    metadata_obj,
+    sqlalchemy.Column("rating_id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("recipe_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("recipes.recipe_id")),
+    sqlalchemy.Column("user_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.user_id")),
+    sqlalchemy.Column("recipe_rating", sqlalchemy.Float),
+    sqlalchemy.Column("recipe_comment", sqlalchemy.String),
+    sqlalchemy.Column("time_stamp", sqlalchemy.DateTime))
 
 instructions = sqlalchemy.Table(
     "instructions",
