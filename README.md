@@ -53,12 +53,7 @@
 
 <table><tr><td>
 
-> **[?]**
-> Provide general information about your project here.
-> What problem does it (intend to) solve?
-> What is the purpose of your project?
-> Why did you undertake it?
-> You don't have to answer all the questions -- just the ones relevant to your project.
+We intend on creating a recipe sharing platform for all foodies, representing people with different expertise levels. This is a backend API that allows users to upload and share recipes, search for recipes by ingredients or cuisine, and rate and comment on recipes. The API would require a persistence layer to store recipe data and user information. Additionally, read and write operations would be used for creating and fetching recipes and user profiles. The motive behind this project is to inspire and connect individuals with different cultures and people around the world.
 
 <details>
 <summary>Screenshots</summary>
@@ -77,20 +72,19 @@
 
 ### Built With
 
-> **[?]**
-> Please provide the technologies that are used in the project.
+Fast API
+Supabase (postgress sql)
+
 
 ## Getting Started
 
 ### Prerequisites
 
-> **[?]**
-> What are the project requirements/dependencies?
+all of the dependencies for the project are listed in requirements .txt
 
 ### Installation
 
-> **[?]**
-> Describe how to install and get started with the project.
+use pip install -r requirements.txt to intall the dependencies
 
 ## Usage
 
@@ -114,6 +108,8 @@ See the [open issues](https://github.com/TariniS/recipe_ap/issues) for a list of
 Reach out to the maintainer at one of the following places:
 
 - [GitHub issues](https://github.com/TariniS/recipe_ap/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+)
+- Contact options listed on [this GitHub profile](https://github.com/DillonRego)
+- Contact options listed on [this GitHub profile](https://github.com/DillonRego)
 - Contact options listed on [this GitHub profile](https://github.com/DillonRego)
 
 ## Project assistance
@@ -142,9 +138,6 @@ For a full list of all authors and contributors, see [the contributors page](htt
 
 Recipe API follows good practices of security, but 100% security cannot be assured.
 Recipe API is provided **"as is"** without any **warranty**. Use at your own risk.
-
-_For more information and to report security issues, please refer to our [security documentation](docs/SECURITY.md)._
-
 
 ## Acknowledgements
 
