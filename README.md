@@ -1,7 +1,7 @@
 <h1 align="center">
   <a href="https://github.com/TariniS/recipe_api">
     <!-- Please provide path to your logo here -->
-    <img src="docs/images/logo.svg" alt="Logo" width="100" height="100">
+    <img src="docs/images/logo.png" alt="Logo" width="100" height="100">
   </a>
 </h1>
 
@@ -24,7 +24,7 @@
 [![Project license](https://img.shields.io/github/license/TariniS/recipe_api.svg?style=flat-square)](LICENSE)
 
 [![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/TariniS/recipe_api/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-[![code with love by Sameera Balijepalli, Tarini Srikanth & Dillon Rego](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)](https://github.com/DillonRego)(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)](https://github.com/DillonRego)(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)](https://github.com/DillonRego)
+[![code with love by Sameera Balijepalli, Tarini Srikanth & Dillon Rego](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)](https://github.com/DillonRego)(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)(https://github.com/DillonRego)(https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-DillonRego-ff1414.svg?style=flat-square)(https://github.com/DillonRego)
 
 </div>
 
