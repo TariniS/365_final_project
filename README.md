@@ -64,9 +64,9 @@ We intend on creating a recipe sharing platform for all foodies, representing pe
 > **[?]**
 > Please provide your screenshots here.
 
-|                               Home Page                               |                               Login Page                               |
+|                               Home Page                               |                                Docs Page                               |
 | :-------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| <img src="docs/images/screenshot.png" title="Home Page" width="100%"> | <img src="docs/images/screenshot.png" title="Login Page" width="100%"> |
+| <img src="docs/images/screenshot1.png" title="Home Page" width="100%"> | <img src="docs/images/screenshot2.png" title="Docs Page" width="100%"> |
 
 </details>
 
