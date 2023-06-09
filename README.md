@@ -74,9 +74,8 @@ We intend on creating a recipe sharing platform for all foodies, representing pe
 
 ### Built With
 
-Fast API
+Fast API,
 Supabase (postgress sql)
-
 
 ## Getting Started
 
@@ -90,9 +89,7 @@ use pip install -r requirements.txt to intall the dependencies
 
 ## Usage
 
-> **[?]**
-> How does one go about using it?
-> Provide various use cases and code examples here.
+Navingate to the Vercell URL listed on the github page. (Use /docs for help)
 
 ## Roadmap
 
@@ -103,16 +100,12 @@ See the [open issues](https://github.com/TariniS/recipe_ap/issues) for a list of
 - [Newest Bugs](https://github.com/TariniS/recipe_ap/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
 ## Support
-
-> **[?]**
-> Provide additional ways to contact the project maintainer/maintainers.
-
 Reach out to the maintainer at one of the following places:
 
 - [GitHub issues](https://github.com/TariniS/recipe_ap/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+)
-- Contact options listed on [this GitHub profile](https://github.com/DillonRego)
-- Contact options listed on [this GitHub profile](https://github.com/DillonRego)
-- Contact options listed on [this GitHub profile](https://github.com/DillonRego)
+- Contact Tarini at [this GitHub profile](https://github.com/TariniS)
+- Contact Sameera at [this GitHub profile](https://github.com/sameerabali5)
+- Contact Dillon at [this GitHub profile](https://github.com/DillonRego)
 
 ## Project assistance
 
@@ -124,15 +117,10 @@ If you want to say **thank you** or/and support active development of Recipe API
 
 Together, we can make Recipe API **better**!
 
-## Contributing
-
-
-
-Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you for being involved!
 
 ## Authors & contributors
 
-The original setup of this repository is by [Dillon Rego](https://github.com/DillonRego).
+The original setup of this repository is by [TariniS](https://github.com/TariniS).
 This README was created by [Dillon Rego](https://github.com/DillonRego).
 
 
