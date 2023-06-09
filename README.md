@@ -26,7 +26,7 @@
 [![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/TariniS/recipe_api/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![code with love by Tarini Srikantho](https://img.shields.io/badge/%3C%2F%3E%20with%20%E2%99%A5%20by-TariniS-A020F0.svg?style=flat-square)](https://github.com/TariniS)
 [![Sameera Balijepalli](https://img.shields.io/badge/-samerabali5-0000ff.svg?style=flat-square)](https://github.com/sameerabali5)
-[![Dillon Rego](https://img.shields.io/badge/-DillonRego-ff1414.svg?style=flat-square)](https://github.com/DillonRego)
+[![Dillon Rego](https://img.shields.io/badge/-DillonRego-148513.svg?style=flat-square)](https://github.com/DillonRego)
 
 </div>
 
