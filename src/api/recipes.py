@@ -106,69 +106,65 @@ def get_recipes_by_ingredients(ingredient_list: str):
     ingredient_list2 = [ingredient.strip() for ingredient in ingredient_list2]
 
     query = """
-            WITH ingredients_modified AS (
-  SELECT
-    r.recipe_id,
-    r.recipe_name,
-    ARRAY_AGG(
-      CASE
-        WHEN i.core_ingredient = ANY(:ingredient_list) THEN i.core_ingredient
-        ELSE i.name
-      END
-    ) AS ingredients,
-    COUNT(DISTINCT CASE
-      WHEN i.core_ingredient = ANY(:ingredient_list) THEN i.name
-    END) AS num_modified_ingredients
-  FROM
-    recipes r
+    
+    WITH ingredients_modified AS (
+    SELECT r.recipe_id, r.recipe_name,
+        ARRAY_AGG(
+            CASE
+                WHEN i.core_ingredient = ANY(:ingredient_list)
+                    THEN i.core_ingredient
+                ELSE i.name
+            END
+        ) AS ingredients,
+        COUNT(DISTINCT CASE
+            WHEN i.core_ingredient = ANY(:ingredient_list)
+                THEN i.name
+        END) AS num_modified_ingredients
+    FROM recipes r
     JOIN recipe_ingredients ri ON r.recipe_id = ri.recipe_id
     JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
-  WHERE
-    r.recipe_id IN (
-      SELECT DISTINCT
-        recipe_id
-      FROM
-        recipe_ingredients ri
+    WHERE r.recipe_id IN (
+        SELECT DISTINCT recipe_id
+        FROM recipe_ingredients ri
         JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
-      WHERE
-        i.core_ingredient = ANY(:ingredient_list)
+        WHERE i.core_ingredient = ANY(:ingredient_list)
     )
-  GROUP BY
-    r.recipe_id,
-    r.recipe_name
+    GROUP BY r.recipe_id, r.recipe_name
 ),
-
 recipe_ids AS (
-  SELECT DISTINCT
-    ri.recipe_id,
-    ri.ingredient_id,
-    i.name AS ingredient_name,
-    i.core_ingredient
-  FROM
-    recipe_ingredients ri
+    SELECT DISTINCT ri.recipe_id,
+        (SELECT ARRAY_AGG(name) FROM unnest(ARRAY_AGG(i.name)) AS name) AS ingredient_names,
+        (SELECT ARRAY_AGG(core_ingredient) FROM unnest(ARRAY_AGG(i.core_ingredient)) AS core_ingredient) AS core_ingredients
+    FROM recipe_ingredients ri
     JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
-  WHERE
-    i.core_ingredient = ANY(:ingredient_list)
+    WHERE i.core_ingredient = ANY(:ingredient_list)
+    GROUP BY ri.recipe_id
 ),
-
 instructions_filtered AS (
-  SELECT
-    ri.recipe_id,
-    ARRAY_AGG(
-      CASE
-        WHEN ri.core_ingredient = ANY(:ingredient_list) AND POSITION(ri.ingredient_name IN ins.step_name) > 0 THEN
-          CASE
-            WHEN ri.core_ingredient != ri.ingredient_name THEN REPLACE(ins.step_name, ri.ingredient_name, ri.core_ingredient)
-            ELSE ins.step_name
-          END
-        ELSE ins.step_name
-      END
-    ) AS modified_instructions
-  FROM
-    instructions ins
+    SELECT ri.recipe_id,
+        ARRAY_AGG(
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM unnest(ri.ingredient_names) AS ing_name
+                    WHERE ins.step_name ILIKE '%' || ing_name || '%'
+                )
+                THEN (
+                    SELECT REPLACE(ins.step_name, ing_name, ri.core_ingredients[array_position(ri.ingredient_names, ing_name)])
+                    FROM unnest(ri.ingredient_names) AS ing_name
+                    WHERE ins.step_name ILIKE '%' || ing_name || '%'
+                    LIMIT 1
+                )
+
+                ELSE ins.step_name
+            
+            END
+        ORDER BY ins.step_order
+        ) AS modified_instructions
+    FROM instructions ins
     JOIN recipe_ids ri ON ri.recipe_id = ins.recipe_id
-  GROUP BY
-    ri.recipe_id
+    GROUP BY ri.recipe_id
+    
 )
 
 SELECT
@@ -182,35 +178,19 @@ FROM
 ORDER BY
   num_modified_ingredients DESC,
   recipe_id;
+
             """
 
-    if len(ingredient_list2) > 1:
-
-        result = db.conn.execute(sqlalchemy.text(query), {'ingredient_list': ingredient_list2})
-        json = []
-        for row in result:
-            modified_instructions = row.modified_instructions
-            alternating_instructions = []
-            for i, instruction in enumerate(modified_instructions):
-                if (i + 1) % 2 == 0:  # Select only the even-indexed instructions (2nd, 4th, 6th, etc.)
-                    alternating_instructions.append(instruction)
-            json.append({
-                "Recipe Name": row.recipe_name,
-                "Recipe Id": row.recipe_id,
-                "Ingredients": row.ingredients,
-                "Instructions": alternating_instructions
-            })
-    else:
-        result = db.conn.execute(sqlalchemy.text(query),
-                                 {'ingredient_list': ingredient_list2})
-        json = []
-        for row in result:
-            json.append({
-                "Recipe Name": row.recipe_name,
-                "Recipe Id": row.recipe_id,
-                "Ingredients": row.ingredients,
-                "Instructions": row.modified_instructions
-            })
+    result = db.conn.execute(sqlalchemy.text(query),
+                             {'ingredient_list': ingredient_list2})
+    json = []
+    for row in result:
+        json.append({
+            "Recipe Name": row.recipe_name,
+            "Recipe Id": row.recipe_id,
+            "Ingredients": row.ingredients,
+            "Instructions": row.modified_instructions
+        })
     if json == []:
         raise HTTPException(status_code=404, detail="Recipe not found.")
     return json
