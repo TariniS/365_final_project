@@ -36,12 +36,12 @@ def get_recipe(id: int):
               GROUP BY recipe_ratings.recipe_id),
               
             ingre AS (
-              SELECT recipe_ingredients.recipe_id, 
-                     ARRAY_AGG(ingredients.name) AS ingredients
-              FROM recipe_ingredients
-              JOIN ingredients ON 
-                    recipe_ingredients.ingredient_id = ingredients.ingredient_id
-              GROUP BY recipe_ingredients.recipe_id),
+  SELECT recipe_ingredients.recipe_id, 
+         ARRAY_AGG(CONCAT(recipe_ingredients.quantity, ' ', recipe_ingredients.measurement, ' ', ingredients.name)) AS ingredients
+  FROM recipe_ingredients
+  JOIN ingredients ON recipe_ingredients.ingredient_id = ingredients.ingredient_id
+  GROUP BY recipe_ingredients.recipe_id
+),
               
             recipe_tags AS (
               SELECT recipe_tags.recipe_id,
